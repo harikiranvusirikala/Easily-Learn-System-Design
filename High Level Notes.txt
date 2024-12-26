@@ -225,3 +225,67 @@ System design is the process of defining components and their integration, APIs,
 
 recommend two iterations—first, where we do our best to come up with a design (that takes about 80 percent of our time), and a second iteration for improvements.
 
+
+
+Section: Abstractions:
+=====
+Abstraction is the art of obfuscating details that we don’t need. It allows us to concentrate on the big picture.
+
+Transactions is a database abstraction that hides many problematic outcomes when concurrent users are reading, writing, or mutating the data and gives a simple interface of commit, in case of success, or abort, in case of failure.
+
+Abstractions in distributed systems help engineers simplify their work and relieve them of the burden of dealing with the underlying complexity of the distributed systems.
+
+Network Abstractions: Remote Procedure Calls(RPCs)
+RPC method is similar to calling a local procedure, except that the called procedure is usually executed in a different process and on a different computer.
+
+
+Consistency Models:
+===
+we can look into the consistency guarantees provided by S3 to decide whether to use it or not. We no need to worry how it handles the consistency, that is abstraction here.
+
+There is a difference between consistency in ACID properties and consistency in the CAP theorem.
+
+• Eventual consistency: ensures that all the replicas converge on a final value after a finite time and when no more writes are coming in.
+All nodes gives same value only, but the old one at the time just someone updating.
+Ensures high availability.
+Eg: DNS, Cassandra(NoSQL database)
+
+• Causal consistency: works by categorizing operations into dependent(causally-related operations) and independent operations.
+preserves the order of the causally-related operations.
+
+x=a
+b=x+5
+y=b
+
+read of x, write of y are causally-related
+used in commenting system, like replies to a comment(we want to display comments after the comment it replies to)
+
+• Sequential consistency: preserves the ordering specified by each client’s program.
+Eg: social networking applications(don't care post order, but still anticipate single friend’s posts to appear in the correct order in which they were created)
+
+• Strict consistency aka linearizability: ensures that a read request from any replicas will get the latest write value.
+Once the client receives the acknowledgment that the write operation has been performed, other clients can read that value.
+
+Linearizability is challenging to achieve in a distributed system. Some of the reasons for such challenges are variable network delays and failures.
+
+Usually, synchronous replication is one of the ingredients for achieving strong consistency, though it in itself is not sufficient.
+We might need consensus algorithms such as Paxos and Raft to achieve strong consistency.
+
+Linearizability affects the system’s availability, which is why it’s not always used.
+Applications with strong consistency requirements use techniques like quorum-based replication to increase the system’s availability.
+
+* Trade-off: Application programmers have to compromise performance and availability if they use services with strong consistency models.
+
+
+Failure Models:
+===
+• Fail-stop: a node halts permanently, other nodes can still detect that node by communicating with it.
+• Crash: a node halts silently, other nodes can’t detect that the node has stopped working.
+• Omission failures: node fails to send or receive messages
+send omission failure - node fails to respond to the incoming request
+receive omission failure - node fails to receive the request and thus can’t acknowledge it
+• Temporal failures: node generates correct results, but is too late to be useful. This failure could be due to bad algorithms, a bad design strategy, or a loss of synchronization between the processor clocks.
+• Byzantine failures: node exhibits random behavior like transmitting arbitrary messages at arbitrary times, producing wrong results, or stopping midway.
+This mostly happens due to an attack by a malicious entity or a software bug.
+most challenging type of failure to deal with.
+
