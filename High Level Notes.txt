@@ -1,0 +1,214 @@
+Structure of Notes:
+===
+1. Introduction:
+System Design Interviews
+Introduction
+Abstractions
+Non-functional system characteristics
+Back-of-the-envelope calculations
+
+
+Section: System Design interviews:
+=====
+System Design interviews are open to discussion and involve multiple possible solutions that can be re-iterated.
+
+ability to approach a problem, think critically, and make trade-offs.
+understanding the problem, breaking it down, and finding the most optimal solution.
+
+figure out the requirements and map them onto the computational components and the high-level communication protocols that connect these subsystems.
+
+The final answer doesn’t matter. What matters is the process and the journey that a good applicant takes the interviewer through.
+
+Best practices:
+ask the right questions to solidify the requirements
+need to scope the problem
+engage the interviewer
+
+how a design might evolve over time as some aspect of the system increases by some order of magnitude
+
+There’s no single correct approach or solution to a design problem.
+A lot is predicated on the assumptions we make.
+
+our responsibility: provide fault tolerance at the design level
+
+Theory: mostly from distributed systems - https://www.educative.io/courses/distributed-systems-practitioners
+
+• Robustness (the ability to maintain operations during a crisis)
+• Scalability
+• Availability
+• Performance
+• Extensibility
+• Resiliency (the ability to return to normal operations over an acceptable period of time post-disruption)
+
+interviewer evaluates the candidate’s ability to discuss the different aspects of the system and assess the solution based on the requirements that might evolve during the conversation.
+
+
+
+Key Concepts to Prepare:
+=====
+1. Fundamental concepts in System Design interview:
+===
+CAP theorem - availability or consistency under-network partitions when network components fail.
+
+• PACELC theorem: CAP theorem and without partitions, latency or consistency.
+
+• If Network (P)artitioning happens then
+	• Choose from (A)vailability Or (C)onsistency
+• (E)lse
+	• Choose from (L)atency Or (C)onsistency
+
+PC/EC system include BigTable and HBase
+PA/EL system include Dynamo and Cassandra
+PA/EC system include MongoDB
+
+• Heartbeat: all servers periodically send a heartbeat message
+
+• AJAX polling/HTTP short-polling: client request, server respone. Empty response on no data.
+
+• HTTP long-polling/hanging GET: hold till data available instead of empty, client immediately re-requests information.
+
+• WebSockets: connection through WebSocket handshake. server & client bidrectional data exchange.
+
+• Server-sent events (SSEs): long-term connection, server send data to client, but client required the use another technology or protocol to send data.
+
+
+2. Fundamentals of distributed system:
+===
+• Data durability and consistency: We must understand the differences and impacts of storage solution failure and corruption rates in read-write processes.
+
+• Replication: key to unlocking data durability and consistency. It deals with backing up data but also with repeating processes at scale.
+
+• Partitioning/sharding: partitions divide data across different nodes within our system. As replication distributes data across nodes, partitioning distributes processes across nodes, reducing the reliance on pure replication.
+
+• Consensus: Consider each node in different location of world, can all be synchronized. This is consensus.
+all the nodes need to agree, which will prevent faulty processes from running and ensure consistency and replication of data and processes across the system.
+
+• Distributed transactions: Once we’ve achieved consensus, now transactions from applications need to be committed across databases, with fault checks performed by each involved resource. Two-way and three-way communication to read, write, and commit are shared across participant nodes.
+
+
+3. The architecture of large-scale web applications:
+===
+• N-tier applications: processing happens in different layers(called tiers) some on client, server, and other server in one application.
+Understanding how these tiers interact and processes they are responsible is part of System Design for the web.
+
+• HTTP and REST: HTTP is the sole API on which the entire internet runs.
+REST is a set of design principles to directly interact with the API that is HTTP, allowing efficient, scalable systems with components isolated from each other’s assumptions.
+
+• DNS and load balancing: Helps in not making a server overload, while other is idle.
+Routing client requests to the right server, the right tier where processing happens, helps ensure system stability.
+
+• Caching: A cache makes our most frequently requested data and applications accessible to most users at high speeds.
+The questions for our web application are what needs to be stored in the cache, how we direct traffic to the cache, and what happens when we don’t have what we want in the cache.
+
+• Stream processing: Stream processing applies uniform processes to the data stream.
+If an application has continuous, consistent data passing through it, then stream processing allows efficient use of local resources within the application.
+
+
+4. Design of large-scale distributed systems:
+===
+Once we know the basics of "distributed systems" and "web architecture", it is time to apply this learning and design real-world systems.
+• https://www.educative.io/courses/distributed-systems-practitioners
+• https://www.educative.io/courses/software-architecture-in-applications
+
+Finding and optimizing potential solutions to these problems will give us the tools to approach the System Design interview with confidence.
+=====
+
+
+Resources:
+===
+This course
+Technical blogs/System Design interview articles
+We can study these blogs to gain insight into the company’s challenges or problems and the changes it made in the design to cope with them.
+
+https://engineering.fb.com/
+https://research.fb.com/
+https://aws.amazon.com/blogs/architecture/
+https://www.amazon.science/blog
+https://netflixtechblog.com/
+https://research.google/
+https://quoraengineering.quora.com/
+https://eng.uber.com/
+https://databricks.com/blog/category/engineering
+https://medium.com/@Pinterest_Engineering
+https://medium.com/blackrock-engineering
+https://eng.lyft.com/
+https://engineering.salesforce.com/
+
+https://www.educative.io/blog/google-system-design-interview-questions
+https://www.educative.io/blog/microsoft-system-design-interview
+https://www.educative.io/blog/netflix-system-design-interview-questions
+https://www.educative.io/blog/amazon-system-design-interview
+https://www.educative.io/blog/meta-system-design-interview
+
+https://www.educative.io/blog/category/system-design
+https://www.educative.io/blog/system-design-interview-questions
+
+We should start with high-level stuff because the low-level details will automatically come up.
+
+https://www.educative.io/mock-interview
+
+
+Do's: Strategize, then divide and conquer:
+===
+1• Ask refining questions
+prioritize the main features by asking the interviewer refining questions
+	• clients direct requirements(functional requirements) example, the ability to send messages in near real-time to friends.
+	• indirect requirements(nonfunctional requirements) example, messaging service performance shouldn’t degrade with increasing user load.
+
+2• Handle data
+identify and understand data and its characteristics in order to look for "appropriate data storage systems and data processing components" for the system design.
+	• What’s the size of the data right now?
+	• At what rate is the data expected to grow over time?
+	• How will the data be consumed by other subsystems or end users?
+	• Is the data read-heavy or write-heavy?
+	• Do we need strict consistency of data, or will eventual consistency work?
+	• What’s the durability target of the data?
+	• What privacy and regulatory requirements do we require for storing or transmitting user data?
+
+3• Discuss the components
+figuring out which components we’ll use, where they’ll be placed, and how they’ll interact with each other.
+like will a conventional database work, or should we use a NoSQL database?
+Front-end components, load balancers, caches, databases, firewalls, and CDNs are just some examples of system components.
+
+4• Discuss trade-offs
+	• Different components have different pros and cons. We’ll need to carefully weigh what works for us.
+	• Different choices have different costs in terms of money and technical complexity. We need to efficiently utilize our resources.
+	• Every design has its weaknesses. As designers, we should be aware of all of them, and we should have a follow-up plan to tackle them.
+We should point out weaknesses in our design to our interviewer and explain why we haven’t tackled them yet.
+
+Don't:
+===
+	• Don’t write code in a system design interview.
+	• Don’t start building without a plan.
+	• Don’t work in silence.
+	• Don’t describe numbers without reason. We have to frame it.
+	• If we don’t know something, we don’t paper over it, and we don’t pretend to know it.
+Note: If an interviewer asks us to design a system we haven’t heard of, we should just be honest and tell them so. The interviewer will either explain it to us or they might change the question.
+
+
+Steps to build large-scale distributed systems:
+===
+1. Determine system requirements and constraints: Initially, identify what the system needs to do (functional requirements) and any limitations it must operate within (non-functional requirements and constraints).
+
+2. Recognize components: Based on the requirements, select the appropriate components, technologies, or APIs that will form part of the system.
+
+3. Generate design: Create a design that integrates the selected components in a way that meets the various requirements.
+
+4. Identify shortcomings in the initial design: Review the initial design to find any limitations or areas for improvement.
+
+5. Discuss trade-offs and improve iteratively: Finally, optimize the design by considering different trade-offs and making iterative improvements.
+
+
+1. What is a system design interview?
+interactive nature, importance of discussing trade-offs, different from coding interviews due to their higher level of abstraction, the process matters more than the final answer, and they often include questions about how a design might evolve over time.
+Additionally, the theory of system design comes from the domain of distributed systems.
+
+2. How to prepare for success?
+Your approach to preparation, including going through courses, reading technical blogs, understanding how popular applications work and building side projects and participating in mock interviews.
+Focusing on trade-offs rather than mechanics is also crucial.
+
+3. How to perform well?
+You’ve outlined a good strategy for performing well by engaging the interviewer, refining requirements, designing components, and discussing trade-offs. Remember, it’s important to avoid looking unoriginal and to have a plan to attack the problem.
+Identifying and understanding data and its characteristics can help in choosing the right systems and components.
+Moreover, acknowledging that there’s no one correct answer to a design problem and every design has its weaknesses is vital.
+
