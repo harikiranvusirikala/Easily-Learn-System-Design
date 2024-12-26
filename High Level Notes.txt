@@ -289,3 +289,61 @@ receive omission failure - node fails to receive the request and thus can’t ac
 This mostly happens due to an attack by a malicious entity or a software bug.
 most challenging type of failure to deal with.
 
+
+
+Section: Non-functional System Characteristics:
+=====
+1• Availability - time loss: percentage of time a system accepts requests and responds to clients.
+We measure availability as a number of nines.
+99.9% (3 nines)		8.76 hours/year		43.8 minutes/month 		10.1 minutes/week downtime
+
+2• Reliability - frequency and impact of failures: probability that the service will perform its functions for a specified time.
+how well a system performs its intended operations (functional requirements).
+R measured - mean time between failures (MTBF) and mean time to repair (MTTR).
+We strive for a higher MTBF value and a lower MTTR value.
+we use MTTF instead of MTBF for those cases where a failed component is replaced due to irreparable problems.
+A is a function of R. This means that the value of R can change independently, and the value of A depends on R.
+
+3• Scalability: ability of a system to handle an increasing amount of workload without compromising performance.
+
+Workload types:
+	• Request workload: 			number of requests served by the system.
+	• Data/storage workload: 	amount of data stored by the system.
+Dimensions:
+	• Size scalability: system can scale simply by adding user or resource.
+	• Administrative scalability: system’s ability to manage an increasing number of users or organizations without a significant increase in administrative effort or complexity.
+	• Geographical scalability: system can readily service a broad geographical region, as well as a smaller one.
+Different approaches of scalability:
+	• Vertical scalability—scaling up: prroviding additional capabilities (for example, additional CPUs or RAM) to an existing device.
+	allows us to expand our present hardware or software capacity, but we can only grow it to the limitations of our server.
+	The dollar cost of vertical scaling is usually high because we might need exotic components to scale up.
+	• Horizontal scalability—scaling out: increasing the number of machines in the network.
+	We use "commodity nodes"(inexpensive compared to specialized or high-end hardware) for this purpose because of their attractive dollar-cost benefits.
+	The catch here is that we need to build a system such that many nodes could collectively work as if we had a single, huge server.
+
+4• Maintainability: keeping the system up and running by finding and fixing bugs, adding new functionalities, keeping the system’s platform updated, and ensuring smooth system operations.
+	• Operability: This is the ease with which we can ensure the system’s smooth operational running under normal circumstances and achieve normal conditions under a fault.
+	• Lucidity: This refers to the simplicity of the code. The simpler the code base, the easier it is to understand and maintain it, and vice versa.
+	• Modifiability: This is the capability of the system to integrate modified, new, and unforeseen features without any hassle.
+
+probability that the service will restore its functions within a specified time of fault occurrence.
+M measured - mean time to repair (MTTR)
+
+Maintainability refers to time-to-repair, whereas
+Reliability refers to both time-to-repair and the time-to-failure
+
+5• Fault Tolerance: refers to a system’s ability to execute persistently even if one or more of its components fail.
+• Replication: We can swap out failed nodes with healthy ones and a failed data store with its replica.
+
+* Trade-off: When a system needs strong consistency, we can synchronously update data in replicas. However, this reduces the availability of the system.
+We can also asynchronously update data in replicas when we can tolerate eventual consistency, resulting in stale reads until all replicas converge.
+We compromise either on availability or on consistency under failures—a reality that is outlined in the CAP theorem.
+
+• Checkpointing: technique that saves the system’s state in stable storage for later retrieval in case of failures due to errors or service disruptions.
+	• Consistent state: all the individual processes of a system have a consistent view of the shared state or sequence of events that have occurred in a system.
+	 • All updates to data that were completed before the checkpoint are saved. Any updates to data that were in progress are rolled back as if they didn’t initiate.
+	 • Checkpoints include all the messages that have been sent or received up until the checkpoint. No messages are in transit (in-flight) to avoid cases of missing messages.
+	 • Relationships and dependencies between system components and their states match what would be expected during normal operation.
+	• Inconsistent state: This is a state where there are discrepancies in the saved state of different processes of a system.
+	checkpoints across different processes are not coherent and coordinated.
+
