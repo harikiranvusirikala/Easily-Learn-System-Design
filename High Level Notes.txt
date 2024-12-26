@@ -212,3 +212,16 @@ You’ve outlined a good strategy for performing well by engaging the interviewe
 Identifying and understanding data and its characteristics can help in choosing the right systems and components.
 Moreover, acknowledging that there’s no one correct answer to a design problem and every design has its weaknesses is vital.
 
+
+Section: Introduction:
+=====
+System design is the process of defining components and their integration, APIs, and data models to build large-scale systems that meet a specified set of functional and non-functional requirements.
+
+• Reliable systems handle faults, failures, and errors.
+• Effective systems meet all user needs and business requirements.
+• Maintainable systems are flexible and easy to scale up or down. The ability to add new features also comes under the umbrella of maintainability.
+
+16 crucial building blocks
+
+recommend two iterations—first, where we do our best to come up with a design (that takes about 80 percent of our time), and a second iteration for improvements.
+
