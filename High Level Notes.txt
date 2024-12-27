@@ -464,3 +464,85 @@ Section: Building Blocks: Introduction:
 =====
 Many of the building blocks we discuss are also available for actual use in the public clouds, such as Amazon Web Services (AWS), Azure, and Google Cloud Platform (GCP).
 
+Section: 1• Domain Name System(DNS):
+=====
+Internet’s naming service that maps human-friendly domain names to machine-readable IP addresses.
+mappings of domain names to IP addresses.
+
+When a user enters a domain name in the browser, the browser has to translate the domain name to IP address by asking the DNS infrastructure.
+
+Name servers: DNS servers(among many servers) that respond to users’ queries.
+Resource records(RR): form of domain name to IP address mappings.
+	Common Types:
+	A				Provides the hostname to IP address mapping
+	NS			Provides the hostname that is the authoritative DNS for a domain name
+	CNAME		Provides the mapping from alias to canonical hostname
+	MX			Provides the mapping of mail server from alias to canonical hostname
+Caching
+Hierarchy: allows DNS to be highly scalable
+
+DNS hierarchy:
+Types:
+• DNS resolver / local or default servers:
+	initiate the querying sequence and forward requests to the other DNS name servers
+	can also cater to users’ DNS queries through caching techniques
+• Root-level name servers:
+	receive requests from local servers
+	return a list of top-level domain (TLD) servers that hold the IP addresses of the .xyz domain
+• Top-level domain (TLD) name servers: hold the IP addresses of authoritative name servers.
+• Authoritative name servers: organization’s DNS name servers that provide the IP addresses of the web or application servers
+
+Ways:
+• Iterative: The local server requests the root, TLD, and the authoritative servers for the IP address.
+• Recursive: The end user requests the local server. The local server further requests the root DNS name servers. The root name servers forward the requests to other name servers.
+
+iterative query is preferred to reduce query load on DNS infrastructure.
+
+third-party public DNS resolvers offered by Google, Cloudflare, OpenDNS, and many more may provide quicker responses than the local ISP DNS facilities.
+
+Caching: temporary storage of frequently requested resource records.
+can be implemented in the browser, operating systems, local name server within the user’s network, or the ISP’s DNS resolvers (Total in 4 locations).
+
+DNS as a distributed system:
+===
+advantages:
+• It avoids becoming a single point of failure (SPOF).
+• It achieves low query latency so users can get responses from nearby servers.
+• It gets a higher degree of flexibility during maintenance and updates or upgrades. For example, if one DNS server is down or overburdened, another DNS server can respond to user queries.
+
+There are 13 logical root name servers (named letter A through M) with many instances spread throughout the globe. These servers are managed by 12 different organizations.
+
+Highly scalable:
+Roughly 1,000 replicated instances of 13 root-level servers are spread throughout the world strategically to handle user queries.
+different services handle different portions of the tree enabling scalability and manageability of the system
+
+Reliable:
+Caching:
+Server replication: has replicated copies of each logical server spread systematically across the globe
+Protocol: many rely on unreliable User Datagram Protocol (UDP) which is much faster to request and receive DNS responses
+UDP is usually favored over TCP(which needs a three-way handshake every time before data exchange)
+
+can use TCP when its message size exceeds the original packet size of 512 Bytes.
+Some clients prefer TCP over UDP to employ transport layer security for privacy reasons.
+
+Consistent:
+strong consistency to achieve high performance because data is read frequently from DNS databases as compared to writing.
+eventual consistency and updates records on replicated servers lazily.
+few seconds up to three days to update records on the DNS servers across the Internet.
+
+possible that certain resource records are updated on the authoritative servers in case of server failures at the organization.
+To mitigate this issue, each cached record comes with an expiration time called time-to-live (TTL).
+
+maintain high availability - TTL low - as low as 120 seconds
+
+Test it out:
+During nslookup "Non-authoritative answer" (server that is not the authoritative server of Google) means Cached response from others
+order different some times due to DNS indirectly performing laod-balancing
+
+dig command gives TTL and Query time(DNS response time)
+
+OS have configuration files (/etc/resolv.conf in Linux) with the DNS resolvers’ IP addresses
+Often, DHCP provides the default DNS resolver IP address along with other configurations.
+Typically, the Berkeley Internet Name Domain (BIND) software is used on DNS resolvers.
+The InterNIC maintains the updated list of 13 root servers.
+
