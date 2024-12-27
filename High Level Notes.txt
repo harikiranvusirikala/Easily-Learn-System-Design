@@ -431,3 +431,36 @@ Pareto principle: assumption that 80% of our peak traffic occurs within 20% of t
 In 2023, 20 TB disks are readily available.
 Many data centers of an organization are connected with high speed networks such as 1Tbps.
 
+
+
+
+Structure of Notes:
+===
+2. Building Blocks:
+Introduction
+DNS
+Load balancers
+Databases
+Key-value store
+CDN
+Sequencer
+Distributed monitoring
+Monitoring server-side errors
+Monitoring client-side errors
+Distributed cache
+Distributed messaging queue
+Pub-sub system
+Rate limiter
+Blob store
+Distributed search
+Distributed logging
+Distributed task scheduler
+Sharded counters
+Concluding building blocks
+
+
+
+Section: Building Blocks: Introduction:
+=====
+Many of the building blocks we discuss are also available for actual use in the public clouds, such as Amazon Web Services (AWS), Azure, and Google Cloud Platform (GCP).
+
