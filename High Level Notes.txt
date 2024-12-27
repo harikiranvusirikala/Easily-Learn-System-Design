@@ -153,7 +153,7 @@ Do's: Strategize, then divide and conquer:
 1• Ask refining questions
 prioritize the main features by asking the interviewer refining questions
 	• clients direct requirements(functional requirements) example, the ability to send messages in near real-time to friends.
-	• indirect requirements(nonfunctional requirements) example, messaging service performance shouldn’t degrade with increasing user load.
+	• indirect requirements(non-functional requirements (NFRs)) example, messaging service performance shouldn’t degrade with increasing user load.
 
 2• Handle data
 identify and understand data and its characteristics in order to look for "appropriate data storage systems and data processing components" for the system design.
@@ -346,4 +346,88 @@ We compromise either on availability or on consistency under failures—a realit
 	 • Relationships and dependencies between system components and their states match what would be expected during normal operation.
 	• Inconsistent state: This is a state where there are discrepancies in the saved state of different processes of a system.
 	checkpoints across different processes are not coherent and coordinated.
+
+
+
+Section: Back-of-the-envelope calculations (BOTECs): involve swift, approximate, and simplified estimations or computations typically done on paper or, figuratively, on the back of an envelope.
+=====
+
+Types of data center servers:
+===
+1• Web servers: first point of contact after load balancers.
+mostly serve static content to the client
+
+2• Application servers: run the core application software and business logic.
+primarily provide dynamic content
+
+3• Storage servers
+mainly include structured (for example, SQL) and nonstructured (NoSQL) data management systems.
+YouTube uses the following data stores:
+1. Blob storage: This is used for its encoded videos.
+2. Temporary processing queue storage: This can hold a few hundred hours of video content uploaded daily to YouTube for processing.
+3. Bigtable(NoSQL, key-value store, large amount of structured and semi-structured data, by Google): This is a specialized storage used for storing a large number of thumbnails of videos.
+4. Relational database management system (RDBMS): This is for users’ and videos’ metadata (comments, likes, user channels, and so on).
+Other data stores are still used for analytics, for example, Hadoop’s HDFS.
+
+Organizations also require servers for services like configuration, monitoring, load balancing, analytics, accounting, caching, and so on.
+
+• Typical Server:
+Processor 					Intel Xeon (Sapphire Rapids 8488C)
+Number of cores			64 cores
+RAM									256 GB
+Cache (L3)					112.5 MB
+Storage capacity		16 TB
+
+• Important Latencies:
+Component														Time (nanoseconds)
+L1 cache reference									0.9 
+L2 cache reference									2.8 
+L3 cache reference									12.9 
+Main memory reference								100 
+Compress 1KB with Snzip							3,000 (3 microseconds)
+Read 1 MB sequentially from memory	9,000 (9 microseconds)
+Read 1 MB sequentially from SSD			200,000 (200 microseconds)
+Round trip within same datacenter		500,000 (500 microseconds)
+Read 1 MB sequentially from SSD with speed ~1GB/sec SSD			1,000,000 (1 milliseconds)
+Disk seek														4,000,000 (4 milliseconds)
+Read 1 MB sequentially from disk		2,000,000 (2 milliseconds)
+Send packet SF->NYC									71,000,000 (71 milliseconds)
+
+Remember the order of magnitude difference between different components and operations is more important than remembering the exact numbers.
+For example, we should know that doing IO-bound work (for example, reading 1 MB data sequentially from the SSD disk - 200 micro) is two orders of magnitude slower than CPU-bound work (for example, compressing 1 KB data as snzip - 3 micro).
+
+• Throughput - measured as queries per second (QPS)
+Important Rates:
+QPS handled by MySQL						1000						needs to go through query planning
+QPS handled by key-value store	10,000					simpler API (put and get)
+QPS handled by cache server			100,000–1 M			read and write operations
+
+For real projects, initial designs use BOTECs similar to the ones we use in a system design interview.
+
+Transaction Processing Performance Council Benchmark C(TPC-C) is a benchmark to compare the performance of online transaction processing systems.
+
+• Request types:
+	• CPU-bound requests: processor - X
+	• Memory-bound requests: memory - 10X
+	• IO-bound requests: IO subsystem (such as disks or the network) - 100X
+
+BOTECs for making quick, high-level estimates and decisions in the early stages.
+
+• Resource Estimations:
+	• Servers needed = No.of request/s / request a server can handle
+		Peak capacity
+			• Improving the RPS of a server
+			• Improving over the peak load assumption
+		Cost of server = $3.54/h ($2.6/h with 1y term saving plan)
+	• Storage requirements
+	• Bandwidth requirements = ((daily incoming & outgoing data)Bytes / 86400) * 8bits Gbps(Gigabits per second)
+
+Plausibility test: evaluate assumptions, estimates, or outcomes seem reasonable and realistic
+
+Poisson distribution: gives probability of an outcome, number of events occurring with in a time
+
+Pareto principle: assumption that 80% of our peak traffic occurs within 20% of the time
+
+In 2023, 20 TB disks are readily available.
+Many data centers of an organization are connected with high speed networks such as 1Tbps.
 
