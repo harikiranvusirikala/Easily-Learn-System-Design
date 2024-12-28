@@ -679,3 +679,139 @@ Implementation:
 
 Client-side load balancing is suited where there are numerous services, each with many instances (such as load balancing in Twitter)
 
+
+
+
+Section: 3• Databases:
+=====
+Limitations of file storage
+	• We can’t offer concurrent management to separate users accessing the storage files from different locations.
+	• We can’t grant different access rights to different users.
+	• How will the system scale and be available when adding thousands of entries?
+	• How will we search content for different users in a short time?
+
+Database is an organized collection of data that can be managed and accessed easily.
+created to make it easier to store, retrieve, modify, and delete data in connection with different data-processing procedures.
+
+World Data Center for Climate (WDCC) is the largest database in the world, containing around 220 TB of web data and 6 PB of additional data.
+
+Advantages:
+	• Managing large data: A large amount of data can be easily handled with a database, which wouldn’t be possible using other tools.
+	• Retrieving accurate data (data consistency): Due to different constraints in databases, we can retrieve accurate data whenever we want.
+	• Easy updation: It is quite easy to update data in databases using data manipulation language (DML).
+	• Security: Databases ensure the security of the data. A database only allows authorized users to access data.
+	• Data integrity: Databases ensure data integrity by using different constraints for data.
+	• Availability: Databases can be replicated (using data replication) on different servers, which can be concurrently updated. These replicas ensure availability.
+	• Scalability: Databases are divided (using data partitioning) to manage the load on a single node. This increases scalability.
+
+Types:
+===
+1• SQL (relational databases):
+	has a well defined structure such as attributes (columns of the table).
+	adhere to particular schemas before storing the data.
+	unique key
+	foreign keys
+	Structure Query Language (SQL)
+	simplicity, robustness, flexibility, performance, scalability, and compatibility in managing generic data.
+	* Trade-off: Traditional databases are vertically scalable. Vertical scaling has limits. One might reach a point when more compute, memory, storage, or networking capability could not be added to a single node.
+	provide the atomicity, consistency, isolation, and durability (ACID) properties to maintain the integrity of the database
+	for structured data storage
+	ACID hides many anomalies (like dirty reads, dirty writes, read skew, lost updates, write skew, and phantom reads) behind a simple transaction abort.
+*ACID:
+	• Atomicity: A "transaction is considered an atomic unit". Therefore, either all the statements within a transaction will successfully execute, or none of them will execute. If a statement fails within a transaction, it should be aborted and rolled back.
+	• Consistency: At any given time, the database should be in a consistent state, and it should remain in a consistent state after every transaction. For example, if multiple users want to view a record from the database, it should return a similar result each time.
+	• Isolation: In the case of multiple transactions running concurrently, they shouldn’t be affected by each other. The final state of the database should be the same as the transactions that were executed sequentially.
+	• Durability: The system should guarantee that completed transactions will survive permanently in the database even in system failure events.
+Eg: MySQL,Oracle Database, Microsoft SQL Server, IBM DB2, Postgres, SQLite
+Features:
+	• Flexibility:
+		Data definition language (DDL) provides us the flexibility to modify the database, including tables, columns, renaming the tables, and other changes.
+		DDL even allows us to modify schema while other queries are happening and the database server is running.
+	• Reduced redundancy:
+		eliminates data redundancy. The information related to a specific entity appears in one table while the relevant data to that specific entity appears in the other tables linked through foreign keys. This process is called normalization and has the additional benefit of removing an inconsistent dependency.
+	• Concurrency:
+		handled through transactional access to the data
+		transaction is considered an atomic operation, so it also works in error handling to either roll back or commit a transaction on successful execution
+	• Integration:
+		The process of aggregating data from multiple sources is a common practice in enterprise applications. A common way to perform this aggregation is to integrate a shared database where multiple applications store their data. This way, all the applications can easily access each other’s data while the concurrency control measures handle the access of multiple applications.
+	• Backup and disaster recovery:
+		export and import operations make backup and restoration easier.
+		cloud-based relational databases perform "continuous mirroring" to avoid loss of data and make the restoration process easier and quicker.
+Drawback:
+	• Impedance mismatch:
+		difference between the relational model and the in-memory data structures
+		the values in a table take simple values that can’t be a structure or a list
+		for in-memory, where a complex data structure can be stored
+		To make the complex structures compatible with the relations, we would need a translation of the data in light of relational algebra.
+
+2• NoSQL (non-relational databases):
+	such as document databases often have application-defined structure of data.
+	dynamic schema.
+	used in applications that require a large volume of semi-structured and unstructured data, low latency, and flexible data models
+Characteristics:
+	• Simple design:
+		doesn’t require dealing with the impedance mismatch
+	• Horizontal scaling:
+		ability to run databases on a large cluster
+		stored in one document instead of multiple tables over nodes
+		often spread data across multiple nodes and balance data and queries across nodes automatically
+	• Availability:
+		transparently replace without any application disruption, during node failure
+		support data replication
+	• Support for unstructured and semi-structured data:
+		work with data that doesn’t have schema at the time of database configuration or data writes
+		For example, document databases are structureless; they allow documents (JSON, XML, BSON, and so on) to have different fields.
+		For example, one JSON document can have fewer fields than the other.
+	•	Cost:
+		open source and freely available, but RDBMSs expensive.
+		use clusters of cheap commodity servers, but RDBMSs costly proprietary hardware and storage systems.
+Types:
+	• Key-value database:
+		use key-value methods like hash tables to store data in key-value pairs
+		key serves as a unique or primary key
+		Eg: Amazon DynamoDB, Redis, and Memcached DB
+
+		Efficient for "session-oriented applications", such as web applications, store users’ data in the main memory or in a database during a session.
+		This data may include user profile information, recommendations, targeted promotions, discounts, and more.
+		A unique ID (a key) is assigned to each user’s session for easy access and storage.
+	• Document database:
+		designed to store and retrieve documents in formats like XML, JSON, BSON, and so on.
+		documents are composed of a hierarchical tree data structure that can include maps, collections, and scalar values.
+		Documents in this type of database may have varying structures and data.
+		Eg: MongoDB and Google Cloud Firestore
+
+		For example, in "e-commerce applications", a product has thousands of attributes, which is unfeasible to store in a relational database due to its impact on the reading performance. Here comes the role of a document database, which can efficiently store each attribute in a single file for easy management and faster reading speed.
+
+		good option for "content management applications", such as blogs and video platforms.
+
+		An entity required for the application is stored as a single document in such applications.
+	• Graph database:
+		use the graph data structure to store data, where nodes represent entities, and edges show relationships between entities.
+		The organization of nodes based on relationships leads to interesting patterns between the nodes.
+		This database allows us to store the data once and then interpret it differently based on relationships.
+		Graph data is kept in store files for persistent storage. Each of the files contains data for a specific part of the graph, such as nodes, links, properties, and so on.
+		Eg: Neo4J, OrientDB, and InfiniteGraph.
+
+		can be used in "social applications" and provide interesting facts and figures among different kinds of users and their activities.
+		The focus of graph databases is to store data and pave the way to drive analyses and decisions based on relationships between entities.
+		The nature of graph databases makes them suitable for various applications, such as "data regulation and privacy, machine learning research, financial services-based applications", and many more.
+	• Columnar database:
+		store data in columns instead of rows.
+		enable access to all entries in the database column quickly and efficiently.
+		Eg: HBase, Hypertable, and Amazon Redshift.
+
+		efficient for a large number of aggregation and data analytics queries.
+		It drastically reduces the disk I/O requirements and the amount of data required to load from the disk.
+
+		For example, in applications related to "financial institutions", there’s a need to sum the financial transaction over a period of time. Columnar databases make this operation quicker by just reading the column for the amount of money, ignoring other attributes of customers.
+Drawbacks:
+	• Lack of standardization:
+		doesn’t follow any specific standard, like how relational databases follow relational algebra.
+		Porting applications from one type of NoSQL database to another might be a challenge.
+	• Consistency:
+		* Trade-off: between consistency and availability when failures can happen.
+		We won’t have strong data integrity, like primary and referential integrities in a relational database.
+		Data might not be strongly consistent but slowly converging using a weak model like eventual consistency.
+
+Google’s Cloud Spanner is one such database that’s geo-replicated with automatic horizontal sharding ability and high-speed global snapshots of data.
+
