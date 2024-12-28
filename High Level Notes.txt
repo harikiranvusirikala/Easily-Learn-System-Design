@@ -904,3 +904,146 @@ Like primary-secondary replication, this replication can also yield inconsistenc
 Quorums:
 If we have n nodes, then every write must be updated in at least w nodes to be considered a success, and we must read from r nodes. We’ll get an updated value from reading as long as w+r>n because at least one of the nodes must have an updated write from which we can read. Quorum reads and writes adhere to these r and w values. These n, w, and r are configurable in Dynamo-style databases.
 
+
+Data Partitioning (or sharding):
+=====
+Traditional databases are attractive due to their properties such as range queries, secondary indices, and transactions with the ACID properties.
+
+enables us to use multiple nodes where each node manages some part of the whole data.
+To handle increasing query rates and data amounts, we strive for balanced partitions and balanced read/write load.
+
+hotspots - highly congested partitions
+
+Ways:
+===
+• Vertical sharding
+We can put different tables in various database instances, which might be running on a different physical server.
+We might break a table into multiple tables so that some columns are in one table while the rest are in the other.
+We should be careful if there are joins between multiple tables. We may like to keep such tables together on one shard.
+
+used to increase the speed of data retrieval from a table consisting of columns with very wide text or a binary large object (blob)
+column with large text or a blob is split into a different table.
+
+Vertical sharding has its intricacies and is more amenable to manual partitioning, where stakeholders carefully decide how to partition data.
+In comparison, horizontal sharding is suitable to automate even under dynamic conditions.
+
+Creating shards by moving specific tables of a database around is also a form of vertical sharding.
+
+• Horizontal sharding
+===
+used to divide a table into multiple tables by splitting data row-wise
+Each partition of the original table distributed over database servers is called a "shard".
+
+Strategies:
+===
+• Key-range based sharding: each partition is assigned a continuous range of keys.
+Sometimes, a database consists of multiple tables bound by foreign key relationships. In such a case, the horizontal partition is performed using the same partition key on all tables in a relation.
+
+* Trade-off between an impact on increased storage and locating the desired shards efficiently.
+
+Primary keys are unique across all database shards to avoid key collision during data migration among shards and the merging of data in the online analytical processing (OLAP) environment.
+
+Pros:
+	easy to implement. We precisely know where (which node, which shard) to look for a specific range of keys.
+	Range queries can be performed using the partitioning keys, and those can be kept in partitions in sorted order. How exactly such a sorting happens over time as new data comes in is implementation specific.
+Cons:
+	can’t be performed using keys other than the partitioning key.
+	If keys aren’t selected properly, some nodes may have to store more data due to an uneven distribution of the traffic.
+
+• Hash-based sharding
+uses a hash function on an attribute
+use a hash function on the key to get a hash value and then mod by the number of partitions
+
+Pros:
+	Keys are uniformly distributed across the nodes.
+Cons:
+	We can’t perform range queries with this technique. Keys will be spread over all partitions.
+
+Number of shards the database should be distributed in = Database size / Size of a single shard
+
+Consistent hashing: assigns each server or item in a distributed hash table a place on an abstract circle, called a ring, irrespective of the number of servers in the table. This permits servers and objects to scale without compromising the system’s overall performance.
+
+Pros:
+	It’s easy to scale horizontally.
+	It increases the throughput and improves the latency of the application.
+Cons:
+	Randomly assigning nodes in the ring may cause non-uniform distribution.
+
+Rebalance the partitions:
+===
+Query load can be imbalanced:
+	• The distribution of the data isn’t equal.
+	• There’s too much load on a single partition.
+	• There’s an increase in the query traffic, and we need to add more nodes to keep up.
+
+Strategies:
+	• Avoid hash mod n:
+		problem with the addition or removal of nodes in the case of hashmodn is that every node’s partition number changes and a lot of data moves.
+		This moving of keys from one node to another makes rebalancing costly.
+	• Fixed number of partitions
+		create a, fixed, higher number of partitions than the nodes and assign these partitions to nodes
+		used in Elasticsearch, Riak, and many more.
+	• Dynamic partitioning
+		when the size of a partition reaches the threshold, it’s split equally into two partitions each on one node.
+		The number of partitions adapts to the overall data amount
+		downside - Dynamic rebalancing during reads and writes is challenging because it involves moving data between nodes, causing latency and potential conflicts.
+		used in HBase and MongoDB
+	• Partition proportionally to nodes
+		number of partitions is proportionate to the number of nodes, which means every node has fixed partitions.
+		In earlier approaches, the number of partitions was dependent on the size of the dataset. That isn’t the case here. While the number of nodes remains constant, the size of each partition rises according to the dataset size. However, as the number of nodes increases, the partitions shrink. When a new node enters the network, it splits a certain number of current partitions at random, then takes one half of the split and leaves the other half alone. This can result in an unfair split.
+		used by Cassandra and Ketama.
+
+Partitioning and secondary indexes:
+Partition secondary indexes by document:
+	Each partition is fully independent in this indexing approach. Each partition has its secondary indexes covering just the documents in that partition. It’s unconcerned with the data held in other partitions. If we want to write anything to our database, we need to handle that partition only containing the document ID we’re writing. It’s also known as the local index.
+	In the illustration below, there are three partitions, each having its own identity and data. If we want to get all the customer IDs with the name John, we have to request from all partitions.
+	However, this type of querying on secondary indexes can be expensive. As a result of being restricted by the latency of a poor-performing partition, read query latencies may increase.
+Partition secondary indexes by the term:
+	Instead of creating a secondary index for each partition (a local index), we can make a global index for secondary terms that encompasses data from all partitions.
+	Partitioning secondary indexes by the term is more read-efficient than partitioning secondary indexes by the document. This is because it only accesses the partition that contains the term. However, a single write in this approach affects multiple partitions, making the method write-intensive and complex.
+
+Request routing:
+	• Allow the clients to request any node in the network. If that node doesn’t contain the requested data, it forwards that request to the node that does contain the related data.
+	• The second approach contains a routing tier. All the requests are first forwarded to the routing tier, and it determines which node to connect to fulfill the request.
+	• The clients already have the information related to partitioning and which partition is connected to which node. So, they can directly contact the node that contains the data they need.
+
+ZooKeeper:
+keeps track of all the mappings in the network, and each node connects to ZooKeeper for the information.
+used by HBase, Kafka and SolrCloud
+
+
+Trade-offs:
+=====
+Both horizontal and vertical sharding involve adding resources to our computing infrastructure. Our business stakeholders must decide which is suitable for our organization. We must scale our resources accordingly for our organization and business to grow, to prevent downtime, and to reduce latency. We can scale these resources through a combination of adjustments to CPU, physical memory requirements, hard disk adjustments, and network bandwidth.
+
+Advantages and disadvantages of a centralized database:
+Advantages:
+	• Data maintenance, such as updating and taking backups of a centralized database, is easy.
+	• Centralized databases provide stronger consistency and ACID transactions than distributed databases.
+	• Centralized databases provide a much simpler programming model for the end programmers as compared to distributed databases.
+	• It’s more efficient for businesses that have a small amount of data to store that can reside on a single node.
+Disadvantages:
+	• A centralized database can slow down, causing high latency for end users, when the number of queries per second accessing the centralized database is approaching single-node limits.
+	• A centralized database has a single point of failure. Because of this, its probability of not being accessible is much higher.
+
+Advantages and disadvantages of a distributed database (having sharding):
+Advantages:
+	• It’s fast and easy to access data in a distributed database because data is retrieved from the nearest database shard or the one frequently used.
+	• Data with different levels of distribution transparency can be stored in separate places.
+	• Intensive transactions consisting of queries can be divided into multiple optimized subqueries, which can be processed in a parallel fashion.
+Disadvantages:
+	• Sometimes, data is required from multiple sites(locations), which takes more time than expected.
+	• Relations are partitioned vertically or horizontally among different nodes. Therefore, operations such as joins need to reconstruct complete relations by carefully fetching data. These operations can become much more expensive and complex.
+	• It’s difficult to maintain consistency of data across sites in the distributed database, and it requires extra measures.
+	• Updations and backups in distributed databases take time to synchronize data.
+
+Query optimization and processing speed in a distributed database:
+
+a = Total access delay
+b = Data rate
+v = Total data volume
+
+Total communication time T = a + v/b
+
+<Example with assumptions>
+
