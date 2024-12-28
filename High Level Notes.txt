@@ -815,3 +815,92 @@ Drawbacks:
 
 Google’s Cloud Spanner is one such database that’s geo-replicated with automatic horizontal sharding ability and high-speed global snapshots of data.
 
+
+Data Replication:
+=====
+keeping multiple copies of the data at various nodes (preferably geographically distributed) to achieve availability, scalability, and performance.
+
+Complexities:
+	• How do we keep multiple copies of data consistent with each other?
+	• How do we deal with failed replica nodes?
+	• Should we replicate synchronously or asynchronously?
+		• How do we deal with replication lag in case of asynchronous replication?
+	• How do we handle concurrent writes?
+	• What consistency model needs to be exposed to the end programmers?
+
+Ways:
+	• Synchronous replication: primary node waits for acknowledgments from secondary nodes
+		After receiving acknowledgment from all secondary nodes, the primary node reports success to the client.
+		If one of the secondary nodes doesn’t acknowledge due to failure or fault in the network, the primary node would be unable to acknowledge the client until it receives the successful acknowledgment from the crashed node. This causes high latency in the response from the primary node to the client.
+	• Asynchronous replication: primary node doesn’t wait for the acknowledgment from the secondary nodes and reports success to the client after updating itself.
+		primary node can continue its work even if all the secondary nodes are down. However, if the primary node fails, the writes that weren’t copied to the secondary nodes will be lost.
+
+* Trade-off: between data consistency and availability when different components of the system can fail.
+
+Models:
+1• Single leader/primary-secondary replication
+===
+One primary, responsible for processing any writes to data stored on the cluster, sends all the writes to the secondary nodes and keeps them in sync.
+when our workload is read-heavy (inappropriate if our workload is write-heavy)
+read resilient
+reads can be done from primary or secondary nodes
+
+inconsistency if we use asynchronous replication
+if the primary node fails, any missed updates not passed on to the secondary nodes can be lost
+
+In case of failure of the primary node, a secondary node can be appointed as a primary node, which speeds up the process of recovering the initial primary node by Manual(decide primary and notifies all secondary nodes) or Automatic(primary which wins leader election(based on factor, such as processor with the highest identifier)).
+
+the primary node is a bottleneck and a single point of failure. Moreover, it helps to "achieve read scalability" but "fails to provide write scalability"
+
+Methods:
+	• Statement-based replication (SBR)
+		used in MySQL databases
+		after executing statements, they are written in log file and sent to Secondary for execution.
+		used in MySQL before version 5.1.
+		some disadvantages, like nondeterministic(UPDATE and DELETE statements that use a LIMIT clause without an ORDER BY clause are considered nondeterministic) functions such as NOW() might result in distinct writes on the primary and secondary nodes.
+	• Write-ahead log (WAL) shipping
+		used in both PostgreSQL and Oracle
+		maintains transactional logs(in disk) instead of SQL statements into a log file
+		Subsequently, the recorded operations are executed on the primary database before being transmitted to secondary nodes for execution
+		Drawback - its tight coupling with the inner structure of the database engine, making software upgrades on the leader and followers complicated.
+	• Logical (row-based) replication
+		in various relational databases, including PostgreSQL and MySQL
+		changes made to the database are captured at the level of individual rows and then replicated to the secondary nodes
+		advantages in terms of flexibility and compatibility with different types of schemas.
+
+2• Multi-leader replication
+===
+alternative to single leader replication
+multiple primary nodes that process the writes and send them to all other primary and secondary nodes to replicate
+used in databases along with external tools like the Tungsten Replicator for MySQL.
+
+useful in applications in which we can continue work even if we’re offline
+example, calendar application in which we can set our meetings even if we don’t have access to the internet. Once we’re online, it replicates its changes from our local database (our mobile phone or laptop acts as a primary node) to other nodes.
+
+Conflict: Since all the primary nodes concurrently deal with the write requests, they may modify the same data, which can create a conflict between them
+
+Handle Conflicts:
+	• Conflict avoidance
+		can be avoided if the application can verify that all writes for a given record go via the same leader.
+		However, the conflict may still occur if a user moves to a different location and is now near a different data center. If that happens, we need to reroute the traffic. In such scenarios, the conflict avoidance approach fails and results in concurrent writes.
+	• Last-write-wins
+		update with the latest timestamp is selected.
+		create difficulty because the clock synchronization across nodes is challenging in distributed systems. There’s clock skew that can result in data loss.
+	• Custom logic
+		on conflict, it calls our custom conflict handler(our own logic to handle conflicts according to the needs of our application)
+
+Multi-leader replication topologies:
+	many such as circular topology, star topology, and all-to-all topology(most common/used).
+	In star and circular topology, there’s again a similar drawback that if one of the nodes fails, it can affect the whole system.
+
+3• Peer-to-peer or leaderless replication
+===
+resolves the problem of primary-secondary replication by not having single primary node.
+All the nodes have equal weightage and can accept read and write requests.
+can be found in the Cassandra database.
+
+Like primary-secondary replication, this replication can also yield inconsistency. This is because when several nodes accept write requests, it may lead to concurrent writes. A helpful approach used for solving write-write inconsistency is called quorums.
+
+Quorums:
+If we have n nodes, then every write must be updated in at least w nodes to be considered a success, and we must read from r nodes. We’ll get an updated value from reading as long as w+r>n because at least one of the nodes must have an updated write from which we can read. Quorum reads and writes adhere to these r and w values. These n, w, and r are configurable in Dynamo-style databases.
+
