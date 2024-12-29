@@ -1115,3 +1115,34 @@ Data type:
 
 Note: Dynamo uses MD5 hashes on the key to generate a 128-bit identifier. These identifiers help the system determine which server node will be responsible for this specific key.
 
+
+Scalability:
+===
+store key-value data in storage nodes.
+on demand change need to add or remove storage nodes. partition data over the nodes in the system to distribute the load across all nodes.
+
+Eg: send request to node number is modulus of the hashed value with the number of nodes m
+inefficient, like on removal we need to move the data to next node which is costly and can cause high latency
+
+how to copy data efficiently?
+
+• Consistent hashing:
+effective way to manage the load over the set of nodes
+
+we consider that we have a conceptual ring of hashes from 0 to n−1, where n is the number of available hash values.
+We use each node’s ID, calculate its hash, and map it to the ring. We apply the same process to requests.
+Each request is completed by the next node that it finds by moving in the clockwise direction in the ring.
+
+Whenever a new node is added to the ring, the immediate next node is affected. It has to share its data with the newly added node while other nodes are unaffected. It’s easy to scale since we’re able to keep changes to our nodes minimal. This is because only a small portion of overall keys need to move. The hashes are randomly distributed, so we expect the load of requests to be random and distributed evenly on average on the ring.
+
+Consider previous node N1, next node N2. We add N3 in between. N2 shares the keys from N1 to N3 to N3.
+
+as nodes join or leave, it ensures that a minimal number of keys need to move. However, the request load isn’t equally divided in practice resulting in hotspots. means non-uniform load distribution has increased load on a single server.
+
+	• Use virtual nodes:
+		ensure a more evenly distributed load across the nodes.
+		Instead of applying a single hash function, we’ll apply multiple hash functions(like 3) onto the same key, but for requests still one hash function.
+		Advantages:
+			• If a node fails or does routine maintenance, the workload is uniformly distributed over other nodes. For each newly accessible node, the other nodes receive nearly equal load when it comes back online or is added to the system.
+			• It’s up to each node to decide how many virtual nodes it’s responsible for, considering the heterogeneity of the physical infrastructure. For example, if a node has roughly double the computational capacity as compared to the others, it can take more load using additional hash functions.
+
