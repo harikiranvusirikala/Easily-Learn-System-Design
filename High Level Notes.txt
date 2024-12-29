@@ -1146,3 +1146,29 @@ as nodes join or leave, it ensures that a minimal number of keys need to move. H
 			• If a node fails or does routine maintenance, the workload is uniformly distributed over other nodes. For each newly accessible node, the other nodes receive nearly equal load when it comes back online or is added to the system.
 			• It’s up to each node to decide how many virtual nodes it’s responsible for, considering the heterogeneity of the physical infrastructure. For example, if a node has roughly double the computational capacity as compared to the others, it can take more load using additional hash functions.
 
+
+Data replication for hagh availability:
+===
+• Primary-secondary approach:
+one of the storage areas is primary, and other storage areas are secondary
+secondary replicates its data from the primary.
+primary serves the write requests while the secondary serves read requests. After writing, there’s a lag for replication.
+
+if the primary goes down, we can’t write into the storage, and it becomes a single point of failure. And we need to upgrade a secondary to a primary. The availability of write will suffer as we won’t allow writes during the switch-over time.
+
+So, it doesn’t include the ability to always write.
+
+• Peer-to-peer approach:
+all involved storage areas are primary, and they replicate the data to stay updated.
+Both read and write are allowed on all nodes.
+Usually, it’s inefficient and costly to replicate in all n nodes. Instead, 3 or 5 is a common choice for the number of storage nodes to be replicated, which is configured per instance of the key-value store.
+
+using this for replication to achieve durability and high availability in Key-value store.
+
+A coordinator node is assigned the key “K.” It’s also responsible for replicating the keys to n−1 successors on the ring (clockwise). These lists of successor virtual nodes are called preference lists. To avoid putting replicas on the same physical nodes, the preference list can skip those virtual nodes whose physical node is already in the list.
+
+we opt for asynchronous replication, it allows us to do speedy writes to the nodes. which doesn't effect availability like synchronous waiting for all acknowledgements.
+
+In the context of the CAP theorem, key-value stores can either be consistent or be available when there are network partitions.
+For key-value stores, we prefer availability over consistency. It means if the two storage nodes lost connection for replication, they would keep on handling the requests sent to them, and when the connection is restored, they’ll sync up. In the disconnected phase, it’s highly possible for the nodes to be inconsistent. So, we need to resolve such "conflicts". Handling inconsistencies using the versioning of our data.
+
