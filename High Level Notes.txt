@@ -1295,3 +1295,56 @@ Therefore just having a gossip protocol in itself is not sufficient for proper i
 
 Decentralized failure detection protocols use a gossip-based protocol that allows each node to learn about the addition or removal of other nodes. The join and leave methods of the arriving or leaving nodes explicitly notify the other nodes about the permanent node additions and removals. The individual nodes detect temporary node failures when they fail to communicate with another node. If a node fails to communicate to any of the nodes present in its token set for the authorized time, then it communicates to the administrators that the node is dead.
 
+
+
+
+Section: 5• Content Delivery Network (CDN):
+=====
+If millions of users worldwide use our data-intensive applications, and our service is deployed in a single data center to serve the users’ requests, what possible problems can arise?
+
+Problems:
+• High latency: The user-perceived latency will be high due to the physical distance from the serving data center. User-perceived latency has many components, such as transmission delays (a function of available bandwidth), propagation delays (a function of distance), queuing delays (a function of network congestion), and nodal processing delays. Therefore, data transmission over a large distance results in higher latency. Real-time applications require a latency below 200 milliseconds (ms) in general. For the Voice over Internet Protocol (VoIP), latency should not be more than 150 ms, whereas video streaming applications cannot tolerate a latency above a few seconds.
+
+Note: According to one of the readings taken on December 21, 2021, the average latency from US East (N. Virginia) to US West (N. California) was 62.9 ms. Across continents—for example, from the US East (N. Virginia) to Africa (Cape Town)—was 225.63 ms. This is two-way latency, known as round-trip latency.
+
+• Data-intensive applications: Data-intensive applications require transferring large traffic. Over a longer distance, this could be a problem due to the network path stretching through different kinds of ISPs. Because of some smaller Path message transmission unit (Path MTU, largest data unit that can traverse from source to destination without the need for splitting) links, the throughput of applications on the network might be reduced. Similarly, different portions of the network path might have different congestion characteristics. The problem multiplies as the number of users grows because the origin servers will have to provide the data individually to each user. That is, the primary data center will need to send out a lot of redundant data when multiple clients ask for it. However, applications that use streaming services are both data-intensive and dynamic in nature.
+
+Note: According to a survey, 78% of the United States consumers use streaming services, which is an increase of 25% in five years(2015 to 2021).
+
+• Scarcity of data center resources: Important data center resources like computational capacity and bandwidth become a limitation when the number of users of a service increases significantly. Services engaging millions of users simultaneously need scaling. Even if scaling is achieved in a single data center, it can still suffer from becoming a single point of failure when the data center goes offline due to natural calamity or connectivity issues with the Internet.
+
+Note: According to one study, YouTube, Netflix, and Amazon Prime collectively generated 80% of Internet traffic in 2020. Circa 2016, the CDN provider Akamai served 15% to 30% of web traffic (about 30 terabits per second). For 90% of Internet users, Akamai was just one hop away. Therefore, we have strong reasons to optimize the delivery and consumption of this data without making the Internet core a bottleneck.
+
+Introduction:
+group of geographically distributed proxy servers.
+A proxy server is an intermediate server between a client and the origin server.
+The proxy servers are placed on the network edge(zone where a device or local network interfaces with the Internet).
+reducing latency and saving bandwidth
+stores two types of data: static and dynamic
+
+Note: Various streaming protocols are used to deliver dynamic content by the CDN providers. For example, CDNsun uses the Real-time Messaging Protocol (RTMP), HTTP Live Streaming (HLS), Real-time Streaming Protocol (RTSP), and many more to deliver dynamic content.
+
+Eg: Akamai, StackPath, Cloudflare, Rackspace, Amazon CloudFront, and Google Cloud CDN.
+
+Does a CDN cache all content from the origin server?
+Not likely. A CDN caches a considerable portion of the content depending on its capabilities, and it mostly caches the static content.
+It also depends on the size of the content. For example, it might be possible for Netflix to store more than 90% of its movies in the CDN, while this might not be feasible for a service like YouTube due to the humongous volume of content.
+
+Requirements:
+Functional requirements:
+	• Retrieve: Depending upon the type of CDN models(Push or Pull), a CDN should be able to retrieve content from the origin servers.
+	• Request: Content delivery from the proxy server is made upon the user’s request. CDN proxy servers should be able to respond to each user’s request in this regard.
+	• Deliver: In the case of the push model, the origin servers should be able to send the content to the CDN proxy servers.
+	• Search: The CDN should be able to execute a search against a user query for cached or otherwise stored content within the CDN infrastructure.
+	• Update: In most cases, content comes from the origin server, but if we run a script in a CDN, the CDN should be able to update the content within peer CDN proxy servers in a PoP(A Point of Presence (PoP) is a physical place that allows two or more networks or devices to communicate with each other. Typically, each CDN PoP has a large number of cache servers.).
+	• Delete: Depending upon the type of content (static or dynamic), it should be possible to delete cached entries from the CDN servers after a certain period.
+Non-functional requirements
+	• Performance: Minimizing latency is one of the core missions of a CDN. The proposed design should have the minimum possible latency.
+	• Availability: CDNs are expected to be available at all times because of their effectiveness. Availability includes protection against attacks like DDoS.
+	• Scalability: An increasing number of users will request content from CDNs. Our proposed CDN design should be able to scale horizontally as the requirements increase.
+	• Reliability and security: Our CDN design should ensure no single point of failure. Apart from failures, the designed CDN must reliably handle massive traffic loads. Furthermore, CDNs should provide protection to hosted content from various attacks.
+
+Building blocks we will use:
+	• DNS is the service that maps human-friendly CDN domain names to machine-readable IP addresses. This IP address will take the users to the specified proxy server.
+	• Load balancers distribute millions of requests among the operational proxy servers.
+
