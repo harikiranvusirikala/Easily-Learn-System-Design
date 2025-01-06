@@ -1,0 +1,26 @@
+1• Domain Name System(DNS)
+	• Name servers: respond to users’ queries.
+	• Resource records(RR): form of domain name to IP address mappings.
+	• Caching:
+	• Hierarchy: allows DNS to be highly scalable
+
+	• DNS hierarchy
+		• Types
+			• DNS resolver / local or default servers: initiate the querying sequence and forward requests to the other DNS name servers
+			• Root-level name servers: receive requests from local servers, return a list of top-level domain (TLD) servers that hold the IP addresses of the .xyz domain
+			• Top-level domain (TLD) name servers: hold the IP addresses of authoritative name servers.
+			• Authoritative name servers: organization’s DNS name servers that provide the IP addresses of the web or application servers
+		• Ways
+			• Iterative: local server requests the root, TLD, and the authoritative servers for the IP address
+			• Recursive
+	• DNS as a distributed system
+		• Highly scalable
+		• Reliable
+			• Caching: in the browser, operating systems, local name server within the user’s network, or the ISP’s DNS resolvers
+			• Server replication
+			• Protocol: many rely on unreliable User Datagram Protocol (UDP) which is faster
+		• Consistent: eventual consistency as many reads compared to writes
+	• Test it out
+		• The nslookup output
+		• The dig output
+
