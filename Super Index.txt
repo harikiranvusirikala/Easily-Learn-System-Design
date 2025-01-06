@@ -24,3 +24,71 @@
 		• The nslookup output
 		• The dig output
 
+2• Load Balancers
+	• Capabilities:
+		• Scalability: upscaling or downscaling of capacity of the application/service transparent to the end users
+		• Availability: hide faults and failures of server
+		• Performance: forward requests to servers with a lesser load, not only improves performance but also improves resource utilization
+	• Placing load balancers:
+		• between user and web servers/application gateway
+		• between web servers and application servers that run the business/application logic
+		• between application servers and database servers
+	• Services offered:
+		• Health checking: heartbeat protocol to monitor the health and, therefore, reliability of end-servers. 
+		• TLS termination(TLS/SSL offloading): reduce the burden on end-servers by handling TLS termination with the client.
+		• Predictive analytics: predict traffic patterns through analytics performed over traffic passing through them or using statistics of traffic obtained over time.
+		• Reduced human intervention: automation of handling failures.
+		• Service discovery: clients’ requests are forwarded to appropriate hosting servers by inquiring about the service registry.
+		• Security: mitigating attacks like denial-of-service (DoS) at different layers of the OSI model (layers 3, 4, and 7).
+
+	• Global server load balancing (GSLB): distribution of traffic load across multiple geographical regions.
+		• Load balancing in DNS: uses round-robin to reorders the list of IP addresses
+			• Limitations:
+				• Different ISPs have a different number of users.
+				• round-robin load-balancing algorithm doesn’t consider any end-server crashes
+		• Need for local load balancers:
+			• DNS limitations:
+				• The small size of the DNS packet (512 Bytes) isn’t enough to include all possible IP addresses of the servers.
+				• There’s limited control over the client’s behavior. Clients may select arbitrarily from the received set of IP addresses. Some of the received IP addresses may belong to busy data centers.
+				• Clients can’t determine the closest address to establish a connection with.
+				• In case of failures, recovery can be slow through DNS because of the caching mechanism, especially when TTL values are longer.
+	• Local load balancing: achieved within a data center. focuses on improving efficiency and better resource utilization of the hosting servers in a data center. requests seamlessly connect to the LB that uses a virtual IP address (VIP - no physical machine, group of machines will use the same address)
+
+	• Ways of Global traffic management (GTM):
+		• GTM through ADCs: Some Application Delivery Controllers (ADCs) implement GSLB. have a real-time view of the hosting servers and forward requests based on the health and capacity of the data center.
+		• GTM through DNS:
+	
+	• Algorithms:
+		• Round-robin scheduling
+		• Weighted round-robin
+		• Least connections
+		• Least response time
+		• IP hash
+		• URL hash
+		other algorithms also, like randomized or weighted least connections algorithms
+
+		• Algorithm types:
+			• Static algorithms: don’t consider the changing state of the servers
+			• Dynamic algorithms: maintain state by communicating with the server, so more complicated
+		• Session maintenance through LBs:
+			• Stateful load balancing: maintaining a state of the sessions established between clients and hosting servers, uses state in algorithm, increase complexity and limit scalability
+			• Stateless load balancing: maintains no state and is, therefore, faster and lightweight, use consistent hashing to make forwarding decisions.
+	• Types:
+		• Layer 4 load balancers(stateless?): on transport protocols like TCP and UDP. maintain connection/session with the clients and ensure that the same (TCP/UDP) communication ends up being forwarded to the same back-end server.
+		smart in terms of inspection.
+		• Layer 7 load balancers(stateful?): on the data of application layer protocols. possible to make application-aware forwarding decisions based on HTTP headers, URLs, cookies, and other application-specific data—for example, user ID. Apart from performing TLS termination, these LBs can take responsibilities like rate limiting users, HTTP routing, and header rewriting.
+		faster in terms of processing.
+	• Deployment:
+		• Tier-0 and Tier-1 LBs: DNS as the tier-0 LB, Equal-cost Multi-path (ECMP) routers are the tier-1 LBs, which balances the load among the load balancers themselves.
+		ECMP routers, equal routing priority, play a vital role in the horizontal scalability of the higher-tier LBs.
+		• Tier-2 LBs: include layer 4 load balancers, enables a smooth transition from tier 1 to tier 3 in case of failures
+		• Tier-3 LBs: Layer 7 LBs, maintain state, perform health monitoring of servers at HTTP level, reduces the burden on end-servers by handling low-level details like TCP-congestion control protocols, the discovery of Path MTU (maximum transmission unit), the difference in application protocol between client and back-end servers, and so on. actual load balancing between back-end servers.
+
+		Direct Routing (DR) or Direct Server Return (DSR), which is a method where the back-end server bypasses certain load balancers in the response path.
+	• Implementation:
+		• Hardware load balancers: work as stand-alone devices and are quite expensive
+		• Software load balancers: flexibility, programmability, and cost-effectiveness. implemented on commodity hardware. provide predictive analysis that can help prepare for future traffic patterns.
+		• Cloud load balancers: Load Balancers as a Service (LBaaS)
+			may not necessarily replace a local on-premise load balancing facility, but they can perform global traffic management between different zones
+			ease of use, management, metered cost, flexibility in terms of usage, auditing, and monitoring services to improve business decisions
+
