@@ -478,7 +478,7 @@ Resource records(RR): form of domain name to IP address mappings.
 	NS			Provides the hostname that is the authoritative DNS for a domain name
 	CNAME		Provides the mapping from alias to canonical hostname
 	MX			Provides the mapping of mail server from alias to canonical hostname
-Caching
+Caching:
 Hierarchy: allows DNS to be highly scalable
 
 DNS hierarchy:
@@ -500,9 +500,6 @@ iterative query is preferred to reduce query load on DNS infrastructure.
 
 third-party public DNS resolvers offered by Google, Cloudflare, OpenDNS, and many more may provide quicker responses than the local ISP DNS facilities.
 
-Caching: temporary storage of frequently requested resource records.
-can be implemented in the browser, operating systems, local name server within the user’s network, or the ISP’s DNS resolvers (Total in 4 locations).
-
 DNS as a distributed system:
 ===
 advantages:
@@ -517,9 +514,10 @@ Roughly 1,000 replicated instances of 13 root-level servers are spread throughou
 different services handle different portions of the tree enabling scalability and manageability of the system
 
 Reliable:
-Caching:
-Server replication: has replicated copies of each logical server spread systematically across the globe
-Protocol: many rely on unreliable User Datagram Protocol (UDP) which is much faster to request and receive DNS responses
+• Caching: temporary storage of frequently requested resource records.
+can be implemented in the browser, operating systems, local name server within the user’s network, or the ISP’s DNS resolvers (Total in 4 locations).
+• Server replication: has replicated copies of each logical server spread systematically across the globe
+• Protocol: many rely on unreliable User Datagram Protocol (UDP) which is much faster to request and receive DNS responses
 UDP is usually favored over TCP(which needs a three-way handshake every time before data exchange)
 
 can use TCP when its message size exceeds the original packet size of 512 Bytes.
@@ -581,11 +579,8 @@ If one load balancer fails, and there’s nothing to failover to, the overall se
 Generally, to maintain high availability, enterprises use clusters of load balancers that use heartbeat communication to check the health of load balancers at all times.
 
 • Global server load balancing (GSLB): distribution of traffic load across multiple geographical regions.
-• Local load balancing: achieved within a data center. focuses on improving efficiency and better resource utilization of the hosting servers in a data center.
-
 globally arriving traffic load is intelligently forwarded to a data center
 decisions based on the users’ geographic locations, the number of hosting servers in different locations, the health of data centers, and so on.
-
 can be installed on-premises or obtained through Load Balancing as a Service (LBaaS) (cloud-based service, provides flexibility of automatic scaling up or down depending upon the traffic load)
 
 Load balancing in DNS: uses round-robin to reorders the list of IP addresses in response to each DNS query, so load distrubted among data centers
@@ -608,11 +603,12 @@ DNS limitations:
 	• Clients can’t determine the closest address to establish a connection with.
 	• In case of failures, recovery can be slow through DNS because of the caching mechanism, especially when TTL values are longer.
 
-Local load balancing: reside within a data center, behave like a reverse proxy and balance load
+• Local load balancing: achieved within a data center. focuses on improving efficiency and better resource utilization of the hosting servers in a data center.
+reside within a data center, behave like a reverse proxy and balance load
 Incoming clients’ requests seamlessly connect to the LB that uses a virtual IP address (VIP - no physical machine, group of machines will use the same address)
 DNS queries are usually responded with VIPs.
 
-Global traffic management (GTM):
+Ways of Global traffic management (GTM):
 	• GTM through ADCs: Some ADCs implement GSLB. In that case, ADCs have a real-time view of the hosting servers and forward requests based on the health and capacity of the data center.
 	• GTM through DNS: DNS does GSLB by analyzing the IP location of the client. For each user requesting IP for a domain name (for example, www.educative.io), DNS-based GSLB forwards the IP address of the data center geographically closer to the requesting IP location.
 
@@ -646,7 +642,7 @@ Types:
 
 Layer 7 load balancers are smart in terms of inspection.
 However layer 4 load balancers are faster in terms of processing.
-	Google has developed a high-performance distributed load balancer called Maglev for their cloud platform.
+	Note: Google has developed a high-performance distributed load balancer called "Maglev" for their cloud platform.
 
 ALB, NLB
 
@@ -813,7 +809,7 @@ Drawbacks:
 		We won’t have strong data integrity, like primary and referential integrities in a relational database.
 		Data might not be strongly consistent but slowly converging using a weak model like eventual consistency.
 
-Google’s Cloud Spanner is one such database that’s geo-replicated with automatic horizontal sharding ability and high-speed global snapshots of data.
+Note: "Google’s Cloud Spanner" is one such database that’s geo-replicated with automatic horizontal sharding ability and high-speed global snapshots of data.
 
 
 Data Replication:
@@ -962,7 +958,7 @@ Cons:
 
 Number of shards the database should be distributed in = Database size / Size of a single shard
 
-Consistent hashing: assigns each server or item in a distributed hash table a place on an abstract circle, called a ring, irrespective of the number of servers in the table. This permits servers and objects to scale without compromising the system’s overall performance.
+• Consistent hashing: assigns each server or item in a distributed hash table a place on an abstract circle, called a ring, irrespective of the number of servers in the table. This permits servers and objects to scale without compromising the system’s overall performance.
 (explained in detail in Key-value Store section)
 
 Pros:
@@ -1020,24 +1016,24 @@ Both horizontal and vertical sharding involve adding resources to our computing 
 
 Advantages and disadvantages of a centralized database:
 Advantages:
-	• Data maintenance, such as updating and taking backups of a centralized database, is easy.
-	• Centralized databases provide stronger consistency and ACID transactions than distributed databases.
-	• Centralized databases provide a much simpler programming model for the end programmers as compared to distributed databases.
-	• It’s more efficient for businesses that have a small amount of data to store that can reside on a single node.
+	• Data maintenance, such as updating and taking backups is easy.
+	• provide stronger consistency and ACID transactions than distributed databases.
+	• provide a much simpler programming model for the end programmers as compared to distributed databases.
+	• more efficient for businesses that have a small amount of data to store that can reside on a single node.
 Disadvantages:
-	• A centralized database can slow down, causing high latency for end users, when the number of queries per second accessing the centralized database is approaching single-node limits.
-	• A centralized database has a single point of failure. Because of this, its probability of not being accessible is much higher.
+	• can slow down, causing high latency for end users, when the number of queries per second accessing is approaching single-node limits.
+	• has a single point of failure. Because of this, its probability of not being accessible is much higher.
 
 Advantages and disadvantages of a distributed database (having sharding):
 Advantages:
-	• It’s fast and easy to access data in a distributed database because data is retrieved from the nearest database shard or the one frequently used.
+	• fast and easy to access data because data is retrieved from the nearest database shard or the one frequently used.
 	• Data with different levels of distribution transparency can be stored in separate places.
 	• Intensive transactions consisting of queries can be divided into multiple optimized subqueries, which can be processed in a parallel fashion.
 Disadvantages:
 	• Sometimes, data is required from multiple sites(locations), which takes more time than expected.
 	• Relations are partitioned vertically or horizontally among different nodes. Therefore, operations such as joins need to reconstruct complete relations by carefully fetching data. These operations can become much more expensive and complex.
-	• It’s difficult to maintain consistency of data across sites in the distributed database, and it requires extra measures.
-	• Updations and backups in distributed databases take time to synchronize data.
+	• difficult to maintain consistency of data across sites, and it requires extra measures.
+	• Updations and backups take time to synchronize data.
 
 Query optimization and processing speed in a distributed database:
 
