@@ -180,3 +180,29 @@
 					We won’t have strong data integrity, like primary and referential integrities in a relational database.
 					Data might not be strongly consistent but slowly converging using a weak model like eventual consistency.
 
+	• Data Replication
+		• Complexities: data consistent, failed replica, synchronously or asynchronously(lag), and concurrent writes
+		• Ways
+			• Synchronous replication
+			• Asynchronous replication
+		* Trade-off: between data consistency and availability when different components of the system can fail.
+		• Models
+			1• Single leader/primary-secondary replication - read-heavy
+				• Methods
+					• Statement-based replication (SBR) - MySQL - statements to log file then secondayr. NOW()?
+					• Write-ahead log (WAL) shipping - PostgreSQL and Oracle - transactional logs(in disk)
+					• Logical (row-based) replication - PostgreSQL and MySQL - captured individual rows
+			2• Multi-leader replication
+				• Conflict: Since all the primary nodes concurrently deal with the write requests, they may modify the same data, which can create a conflict between them
+				• Handle Conflicts:
+					• Conflict avoidance - for particular verify all write same leader
+					• Last-write-wins
+					• Custom logic
+				• Topologies
+					• circular topology - drawback if one of the nodes fails
+					• star topology - drawback if one of the nodes fails
+					• all-to-all topology - most common/used
+			3• Peer-to-peer or leaderless replication - Cassandra
+				• Quorums - to solve inconsistency due to concurrent writes
+					w+r>n (update at least w nodes, must read r node, among n nodes)
+
