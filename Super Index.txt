@@ -206,3 +206,28 @@
 				• Quorums - to solve inconsistency due to concurrent writes
 					w+r>n (update at least w nodes, must read r node, among n nodes)
 
+	• Data Partitioning (or sharding)
+		hotspots - highly congested partitions
+		• Ways
+			• Vertical sharding
+			• Horizontal sharding
+				• Strategies
+					• Key-range based sharding: each partition is assigned a continuous range of keys.
+					* Trade-off between an impact on increased storage and locating the desired shards efficiently.
+					• Hash-based sharding - Keys are uniformly distributed across the nodes
+						No of shards the database should be distributed in = Database size / Size of a single shard
+					• Consistent hashing: assigns each server or item in a distributed hash table a place on an abstract circle, called a ring, irrespective of the number of servers in the table
+						easy to scale horizontally
+		• Strategies for rebalancing the partitions
+			• Avoid hash mod n
+			• Fixed number of partitions - Elasticsearch, Riak
+			• Dynamic partitioning - HBase and MongoDB
+			• Partition proportionally to nodes - Cassandra and Ketama
+
+		• Request routing:
+			• Allow the clients to request any node in the network. If that node doesn’t contain the requested data, it forwards that request to the node that does contain the related data.
+			• The second approach contains a routing tier. All the requests are first forwarded to the routing tier, and it determines which node to connect to fulfill the request.
+			• The clients already have the information related to partitioning and which partition is connected to which node. So, they can directly contact the node that contains the data they need.
+		• ZooKeeper: keeps track of all the mappings in the network, and each node connects to ZooKeeper for the information.
+			HBase, Kafka and SolrCloud
+
