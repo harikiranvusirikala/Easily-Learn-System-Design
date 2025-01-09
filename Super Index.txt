@@ -92,3 +92,91 @@
 			may not necessarily replace a local on-premise load balancing facility, but they can perform global traffic management between different zones
 			ease of use, management, metered cost, flexibility in terms of usage, auditing, and monitoring services to improve business decisions
 
+3• Databases
+	• Limitations of file storage
+		• We can’t offer concurrent management to separate users accessing the storage files from different locations.
+		• We can’t grant different access rights to different users.
+		• How will the system scale and be available when adding thousands of entries?
+		• How will we search content for different users in a short time?
+	• Advantages:
+		• Managing large data: A large amount of data can be easily handled with a database
+		• Retrieving accurate data (data consistency): can retrieve accurate data whenever we want.
+		• Easy updation: using data manipulation language (DML).
+		• Security: only allows authorized users to access data.
+		• Data integrity: using different constraints for data.
+		• Availability: can be replicated (using data replication) on different servers, which can be concurrently updated.
+		• Scalability: divided (using data partitioning) to manage the load on a single node.
+
+	• Types:
+		1• SQL (relational databases)
+			* Trade-off: Traditional databases are vertically scalable. Vertical scaling has limits.
+			• ACID:
+				• Atomicity: A "transaction is considered an atomic unit". Therefore, either all the statements within a transaction will successfully execute, or none of them will execute.
+				• Consistency: At any given time, the database should be in a consistent state, and it should remain in a consistent state after every transaction.
+				• Isolation: In the case of multiple transactions running concurrently, they shouldn’t be affected by each other. The final state of the database should be the same as the transactions that were executed sequentially.
+				• Durability: The system should guarantee that completed transactions will survive permanently in the database even in system failure events.
+			• Features:
+				• Flexibility: using Data definition language (DDL) for modification, modify schema while other queries are happening and the database server is running.
+				• Reduced redundancy: using foreign keys. This process is called "normalization" and has the additional benefit of removing an inconsistent dependency.
+				• Concurrency:
+					handled through transactional access to the data
+					transaction is considered an atomic operation, so it also works in error handling to either roll back or commit a transaction on successful execution
+				• Integration: aggregating data from multiple sources. all applications easily access each other’s data while the concurrency control measures handle the access of multiple applications.
+				• Backup and disaster recovery: export and import operations make backup and restoration easier.
+					cloud-based relational databases perform "continuous mirroring" to avoid loss of data and make the restoration process easier and quicker.
+			• Drawback:
+				• Impedance mismatch:
+					difference between the relational model(can’t store a structure or a list) and the in-memory data structures(complex data structure can be stored)
+					To make the complex structures compatible with the relations, we would need a translation of the data in light of relational algebra.
+		2• NoSQL (non-relational databases)
+			dynamic schema.
+			used in applications that require a large volume of semi-structured and unstructured data, low latency, and flexible data models
+			• Characteristics
+				• Simple design: doesn’t require dealing with the impedance mismatch
+				• Horizontal scaling:
+					ability to run databases on a large cluster
+					stored in one document instead of multiple tables over nodes
+					often spread data across multiple nodes and balance data and queries across nodes automatically
+				• Availability: transparently replace without any application disruption, during node failure. support data replication
+				• Support for unstructured and semi-structured data:
+					work with data that doesn’t have schema at the time of database configuration or data writes
+					For example, document databases are structureless; they allow documents (JSON, XML, BSON, and so on) to have different fields.
+				•	Cost:
+					open source and freely available, but RDBMSs expensive.
+					use clusters of cheap commodity servers, but RDBMSs costly proprietary hardware and storage systems.
+			• Types:
+				• Key-value database: - Eg: Amazon DynamoDB, Redis, and Memcached DB
+						use key-value methods like hash tables to store data in key-value pairs
+					For "session-oriented applications", such as web applications, store users’ data in the main memory or in a database during a session.
+					This data may include user profile information, recommendations, targeted promotions, discounts, and more.
+					A unique ID (a key) is assigned to each user’s session for easy access and storage.
+				• Document database: - Eg: MongoDB and Google Cloud Firestore
+						designed to store and retrieve documents in formats like XML, JSON, BSON, and so on.
+						documents are composed of a hierarchical tree data structure that can include maps, collections, and scalar values.
+						Documents in this type of database may have varying structures and data.
+						An entity required for the application is stored as a single document in such applications.
+					For "e-commerce applications", a product has thousands of attributes, which is unfeasible to store in a relational database due to its impact on the reading performance.
+					For "content management applications", such as blogs and video platforms.
+				• Graph database: - Eg: Neo4J, OrientDB, and InfiniteGraph.
+					use the graph data structure to store data, where nodes represent entities, and edges show relationships between entities.
+					gives interesting patterns between the nodes.
+					allows us to store the data once and then interpret it differently based on relationships.
+					Graph data is kept in store files for persistent storage. Each of the files contains data for a specific part of the graph, such as nodes, links, properties, and so on.
+					The focus is to store data and pave the way to drive analyses and decisions based on relationships.
+					For "social applications" and provide interesting facts and figures among different kinds of users and their activities.
+					For various applications, such as "data regulation and privacy, machine learning research, financial services-based applications", and many more.
+				• Columnar database: - Eg: HBase, Hypertable, and Amazon Redshift.
+					store data in columns instead of rows.
+					enable access to all entries in the database column quickly and efficiently.
+					efficient for a large number of aggregation and data analytics queries.
+					It drastically reduces the disk I/O requirements and the amount of data required to load from the disk.
+					For applications related to "financial institutions", there’s a need to sum the financial transaction over a period of time. Columnar databases make this operation quicker by just reading the column for the amount of money, ignoring other attributes of customers.
+			• Drawbacks:
+				• Lack of standardization:
+					doesn’t follow any specific standard, like how relational databases follow relational algebra.
+					Porting applications from one type of NoSQL database to another might be a challenge.
+				• Consistency:
+					* Trade-off: between consistency and availability when failures can happen.
+					We won’t have strong data integrity, like primary and referential integrities in a relational database.
+					Data might not be strongly consistent but slowly converging using a weak model like eventual consistency.
+
