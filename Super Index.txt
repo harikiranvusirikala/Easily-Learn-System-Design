@@ -290,3 +290,36 @@
 			preference lists - lists of successor virtual nodes (skipping viritual nodes more than one of it's)
 			we opt for asynchronous replication, it allows us to do speedy writes to the nodes. which doesn't effect availability
 			we prefer availability over consistency
+	• Data Versioning and Achieving Configurability:
+		to resolve conflicts
+		"vector clock" is a list of (node, counter) pairs.
+		There’s a single vector clock for every version of an object.
+		• Modify the API design:
+			• get(key)
+				return an object or a collection of conflicting objects along with a context.
+				context holds encoded metadata about the object, including details such as the object’s version.
+			• put(key, context, value)
+				finds the node where the value should be placed on the basis of the key and stores.
+				context is returned by the system after the get operation. If we have a list of objects in context that raises a conflict, we’ll ask the client to resolve it.
+		• Vector clock usage example
+		• Compromise with vector clocks limitations:
+			size of vector clocks may increase if multiple servers write to the same object simultaneously.  It’s unlikely to happen in practice because writes are typically handled by one of the top n nodes in a preference list.
+		• get and put operations
+			Every node can handle the get (read) and put (write) operations in our system
+			There can be two ways for a client to select a node:
+				• We route the request to a generic load balancer.
+				• We use a partition-aware client library that routes requests directly to the appropriate coordinator nodes.
+			client isn’t linked to the code in the first approach, whereas "lower latency is achievable in the second". The latency is lower due to the reduced number of hops because the client can directly go to a specific server.
+			consistency protocol - quorum systems - w+r>n
+	• Enable Fault Tolerance and Failure Detection:
+		• Handle temporary failures:
+			hinted handoff approach - We’ll use a sloppy quorum instead of strict quorum membership, where the first n healthy nodes from the preference list handle all read and write operations. The n healthy nodes may not always be the first n nodes discovered when moving clockwise in the consistent hash ring.
+		• Handle permanent failures:
+			• Anti-entropy with Merkle trees:
+				In a "Merkle tree", the values of individual keys are hashed and used as the leaves of the tree. There are hashes of their children in the parent nodes higher up the tree.
+				• Advantage: each branch of the Merkle tree can be examined independently without requiring nodes to download the tree or the complete dataset. It reduces the quantity of data that must be exchanged for synchronization and the number of disc accesses that are required during the anti-entropy procedure.
+				• Disadvantage: is that when a node joins or departs the system, the tree’s hashes are recalculated because multiple key ranges are affected.
+		• Promote membership in the ring to detect failures:
+			"gossip-based protocol" also maintains an eventually consistent view of membership. When two nodes randomly choose one another as their peer, both nodes can efficiently synchronize their persisted membership histories.
+			We can make a few nodes play the role of seeds to avoid logical partitions(due to virtual gosip to another virtual node of same node).
+
