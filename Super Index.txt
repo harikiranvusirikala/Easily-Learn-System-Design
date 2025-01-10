@@ -254,3 +254,39 @@
 
 			Total communication time T = a + v/b (a = Total access delay, v = Total data volume, b = Data rate)
 
+4• Key-value Store
+	keep size KB to MB, larger go to blob
+	For "storing user sessions" in a web application and "building NoSQL databases"
+	Eg: bestseller lists, shopping carts, customer preferences, session management, sales rank, and product catalogs.
+	• Design of a Key-value Store:
+		• Functional requirements
+			• Configurable service: control over the trade-offs between availability, consistency, cost-effectiveness, and performance
+			• Ability to always write (when we picked “A” over “C” in the context of CAP): always have the ability to write into the key-value storage
+			• Hardware heterogeneity: balancing workload distribution according to each server’s capacity
+		• Non-functional requirements
+			• Scalability
+			• Fault tolerance
+	• API design
+		• get(key)
+			when replication, locates replica associated with a specific key
+			in eventual consistency, there might be more than one value returned
+		• put(key, value)
+			system automatically determines where data should be placed.
+			system often keeps metadata about the stored object, which can include the version of the object.
+	• Scalability
+		add or remove storage nodes, copy data efficiently?
+		• Consistent hashing
+			conceptual ring of hashes from 0 to n−1
+			For both node and request do hash and place/send in a place of ring
+			Consider previous node N1, next node N2. We add N3 in between. N2 shares the keys from N1 to N3 to N3.
+			• Use virtual nodes - for uniform load distribution, and no hotspots
+				apply multiple hash functions(like 3) onto the same key, but for requests still one hash function
+				• If a node fails or does routine maintenance, the workload is uniformly distributed over other nodes.
+				• node to decide how many virtual nodes it’s responsible for, considering the heterogeneity of the physical infrastructure.
+	• Data replication for high availability:
+		• Primary-secondary approach: primary serves the write requests while the secondary serves read requests. After writing, there’s a lag for replication.
+		• Peer-to-peer approach
+			configure no of instances(3 or 5 commonly) it should replicate
+			preference lists - lists of successor virtual nodes (skipping viritual nodes more than one of it's)
+			we opt for asynchronous replication, it allows us to do speedy writes to the nodes. which doesn't effect availability
+			we prefer availability over consistency
