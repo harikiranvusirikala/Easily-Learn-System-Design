@@ -1143,7 +1143,7 @@ as nodes join or leave, it ensures that a minimal number of keys need to move. H
 			• It’s up to each node to decide how many virtual nodes it’s responsible for, considering the heterogeneity of the physical infrastructure. For example, if a node has roughly double the computational capacity as compared to the others, it can take more load using additional hash functions.
 
 
-Data replication for hagh availability:
+Data replication for high availability:
 ===
 • Primary-secondary approach:
 one of the storage areas is primary, and other storage areas are secondary
@@ -1161,7 +1161,7 @@ Usually, it’s inefficient and costly to replicate in all n nodes. Instead, 3 o
 
 using this for replication to achieve durability and high availability in Key-value store.
 
-A coordinator node is assigned the key “K.” It’s also responsible for replicating the keys to n−1 successors on the ring (clockwise). These lists of successor virtual nodes are called preference lists. To avoid putting replicas on the same physical nodes, the preference list can skip those virtual nodes whose physical node is already in the list.
+A coordinator node is assigned the key “K.” It’s also responsible for replicating the keys to n−1 successors on the ring (clockwise). These lists of successor virtual nodes are called "preference lists". To avoid putting replicas on the same physical nodes, the preference list can skip those virtual nodes whose physical node is already in the list.
 
 we opt for asynchronous replication, it allows us to do speedy writes to the nodes. which doesn't effect availability like synchronous waiting for all acknowledgements.
 
@@ -1182,12 +1182,12 @@ Modify the API design:
 we can decide if two events are causally related or not using a vector clock value. For this, we need information about which node performed the operation before and what its vector clock value was. This is the context of an operation.
 
 get(key)
-We return an object or a collection of conflicting objects along with a context.
-The context holds encoded metadata about the object, including details such as the object’s version.
+return an object or a collection of conflicting objects along with a context.
+context holds encoded metadata about the object, including details such as the object’s version.
 
 put(key, context, value)
-The function finds the node where the value should be placed on the basis of the key and stores the value associated with it.
-The context is returned by the system after the get operation. If we have a list of objects in context that raises a conflict, we’ll ask the client to resolve it.
+finds the node where the value should be placed on the basis of the key and stores.
+context is returned by the system after the get operation. If we have a list of objects in context that raises a conflict, we’ll ask the client to resolve it.
 
 To update an object in the key-value store, the client must give the context. We determine version information using a vector clock by supplying the context from a previous read operation. If the key-value store has access to several branches, it provides all objects at the leaf nodes, together with their respective version information in context, when processing a read request. Reconciling disparate versions and merging them into a single new version is considered an update.
 
@@ -1196,7 +1196,7 @@ Note: This process of resolving conflicts is comparable to how it’s done in Gi
 <Vector clock usage example>
 
 Compromise with vector clocks limitations:
-The size of vector clocks may increase if multiple servers write to the same object simultaneously. It’s unlikely to happen in practice because writes are typically handled by one of the top n nodes in a preference list.
+size of vector clocks may increase if multiple servers write to the same object simultaneously. It’s unlikely to happen in practice because writes are typically handled by one of the top n nodes in a preference list.
 
 It’s a hassle to store and maintain such a long version history.
 We can limit the size of the vector clock in these situations.
@@ -1332,7 +1332,7 @@ Functional requirements:
 	• Request: Content delivery from the proxy server is made upon the user’s request. CDN proxy servers should be able to respond to each user’s request in this regard.
 	• Deliver: In the case of the push model, the origin servers should be able to send the content to the CDN proxy servers.
 	• Search: The CDN should be able to execute a search against a user query for cached or otherwise stored content within the CDN infrastructure.
-	• Update: In most cases, content comes from the origin server, but if we run a script in a CDN, the CDN should be able to update the content within peer CDN proxy servers in a PoP(A Point of Presence (PoP) is a physical place that allows two or more networks or devices to communicate with each other. Typically, each CDN PoP has a large number of cache servers.).
+	• Update: In most cases, content comes from the origin server, but if we run a script in a CDN, the CDN should be able to update the content within peer CDN proxy servers in a PoP(A Point of Presence is a physical place that allows two or more networks or devices to communicate with each other.).
 	• Delete: Depending upon the type of content (static or dynamic), it should be possible to delete cached entries from the CDN servers after a certain period.
 Non-functional requirements
 	• Performance: Minimizing latency is one of the core missions of a CDN. The proposed design should have the minimum possible latency.
@@ -1415,16 +1415,17 @@ In-depth Investigation of CDN: Part 1:
 	set of servers receives data from the parent nodes in the tree, which eventually receive data from the origin servers.
 	The data is copied from the origin server to the proxy servers by following different paths in the tree.
 
-	Whenever a new proxy server enters the tree of a CDN, it requests the control core(set of servers that manage the proxy servers within the PoP.), which maintains information on all the proxy servers in the CDN and provides initial content with the configuration data.
+	Whenever a new proxy server enters the tree of a CDN, it requests the "control core"(set of servers that manage the proxy servers within the PoP.), which maintains information on all the proxy servers in the CDN and provides initial content with the configuration data.
 
 	"multi-layer cache" might be used to handle long-tail content
 
 • Find the nearest proxy server to fetch the data:
 	• Important factors that affect the proximity of the proxy server:
-		• Network distance between the user and the proxy server is crucial.
+		• Network distance between the user and the proxy server.
 			• length of the network path.
 			• capacity (bandwidth) limits along the network path.
-		• Requests load refers to the load a proxy server handles at any point in time. If a set of proxy servers are overloaded, the request routing system should forward the request to a location with a lesser load. This action balances out the proxy server load and, consequently, reduces the response latency.
+		• Requests load refers to the load a proxy server handles at any point in time.
+			If a set of proxy servers are overloaded, the request routing system should forward the request to a location with a lesser load. This action balances out the proxy server load and, consequently, reduces the response latency.
 	• DNS redirection: return another URI (instead of an IP) to the client
 		client tries to resolve a name, authoritative DNS server provides another URL (for example, cdn.xyz.com). The client does another DNS resolution, and the CDN’s authoritative DNS provides an IP address of an appropriate CDN proxy server to fetch the required content.
 
@@ -1435,7 +1436,7 @@ In-depth Investigation of CDN: Part 1:
 			• it distributes the load over the proxy servers in that location to balance the load among the proxy servers.
 		To shift a client from one machine in a cluster to another, the DNS replies at the second step are given with short TTLs so that the client repeats the resolution after a short while.
 	• Anycast: routing methodology in which all the edge servers located in multiple locations share the same single IP address. It employs the Border Gateway Protocol (BGP, network-level protocol used by Internet edge routers to share routing and reachability information so that every node on the network, even if independent, is aware of the status of their closest network neighbors.) to route clients based on the Internet’s natural network flow. A CDN provider can use the anycast mechanism so that clients are directed to the nearest proxy servers for content.
-	• Client multiplexing:  involves sending a client a list of candidate servers. The client then chooses one server from the list to send the request to. This approach is "inefficient" because the client lacks the overall information to choose the most suitable server for their request. This may result in sending requests to an already-loaded server and experiencing higher access latency.
+	• Client multiplexing: involves sending a client a list of candidate servers. The client then chooses one server from the list to send the request to. This approach is "inefficient" because the client lacks the overall information to choose the most suitable server for their request. This may result in sending requests to an already-loaded server and experiencing higher access latency.
 	• HTTP redirection: simplest of all approaches. With this scheme, the client requests content from the origin server. The origin server responds with an HTTP protocol to redirect the user via a URL of the content.
 
 
@@ -1510,12 +1511,12 @@ Evaluation of CDN's Design:
 	• A CDN can also be the provider of proxy servers located in the ISP or Internet exchange points (IXPs) to handle high traffic.
 	• The request routing system ensures that users are directed to the nearest proxy servers, as discussed earlier.
 	• The proxy servers have long-tail content stored in nonvolatile storage systems like SSD or HDD. Serving from these resources results in a more negligible latency than we’d see from serving content from origin servers.
-	• As was discussed previously, proxy servers can be implemented in layers where if one layer doesn’t have the content, the request can be entertained by the next layer of proxy servers. For example, the edge proxy servers can request the parent proxy servers. Placing proxy servers at specific ISPs could be the best option when most traffic comes from those ISP regions.
+	• As was discussed previously, proxy servers can be implemented in layers where if one layer doesn’t have the content, the request can be entertained by the next layer of proxy servers. Placing proxy servers at specific ISPs could be the best option when most traffic comes from those ISP regions.
 
 • Availability:
 	• can deal with massive traffic due to its distributed nature.
 	• ensures availability through its cached content that serves as a backup whenever the origin servers fail.
-	• if one or more proxy servers in the CDN stop working, other operational proxy servers step in and continue to drive the web traffic.
+	• if one or more proxy servers in the CDN stop working, other operational proxy servers step in.
 	• edge proxy servers can be made available through redundancy by replicating data to as many proxy servers as needed to avoid a single point of failure and to meet the request load.
 	• Finally, we can use a load balancer to distribute the users’ requests to nearby active proxy servers.
 
@@ -1530,4 +1531,75 @@ Evaluation of CDN's Design:
 	• We can use scrubber servers to prevent DDoS attacks and securely host content.
 	• we can use the heartbeat protocol to monitor the health of servers and omit faulty servers.
 	• Real-time applications also build their own specified CDNs to prevent content leakage problems and securely serve content to their end users.
+
+
+
+
+Section: 6• Sequencer:
+=====
+need a unique ID generator that acts as a primary key in a distributed setting
+unique ID helps us identify the flow of an event in the logs and is useful for debugging.
+usage in Canopy - Facebook’s end-to-end performance tracing and analysis system
+	• Design of a Unique ID Generator
+		• Requirements for unique identifiers
+			• Uniqueness: We need to assign unique identifiers to different events for identification purposes.
+			• Scalability: generate at least a billion unique IDs per day.
+			• Availability: Since multiple events happen even at the level of nanoseconds, our system should generate IDs for all the events that occur.
+			• 64-bit numeric ID: We restrict the length to 64 bits(2^64 = 1.8*10^19) because this bit size is enough for many years(50M years considering 1B ID's/day) in the future.
+		1• First solution: UUID (universally unique IDs)
+			128-bit number(10^38 numbers) and it looks like 123e4567e89b12d3a456426614174000 in hexadecimal
+			We opt for version 4, which generates a pseudorandom number.
+			Each server can generate its own ID and assign the ID to its respective event.
+			No coordination is needed for UUID since it’s independent of the server.
+			Scaling up and down is easy with UUID, and this system is also highly available.
+			Furthermore, it has a low probability of collisions(when there is sufficient randomness while implementing the UUID generator. 122 bits of UUID version 4 are set using a random or pseudo-random data source. If the randomness of such a data source is low, the collision probability can increase quite a bit).
+		2• Second solution: using a database
+			mimicking the auto-increment feature of a database
+			single point of failure, instead increment by m (number of database servers), duplication on decrease of m.
+		3• Third solution: using a range handler
+			multiple ranges for one to two billion, such as 1 to 1,000,000; 1,000,001 to 2,000,000; and so on.
+			central microservice can provide a range to a server upon request
+			server increments locally and request again for new range.
+			range handler - microservice that keeps a record of all the taken and available ranges.
+			status of each range stored in replica storage
+			single point of failure, failover server hands out ranges, recover back with the state from latest checkpoint of replicated store.
+			To accomadate a new data center modify strategy by implementing Geographic Sharding.
+			lose a significant range when a server dies, overcome by allocating shorter ranges
+	• Unique IDs with Causality
+		• Causality
+			essential to identify the dependence for nonconcurrent events(like comment and it's reply), unlike in concurrent events(independent events).
+		• Use UNIX time stamps
+			ID-generating server - can generate one ID in a single millisecond (86.4M/day < 1B/day)
+			$ date +%s%3N -> 1736598223199
+			single point of failure, add more server and append server ID to UNIX time stamp
+			duplicate for concurrent events
+		• Twitter Snowflake
+			• Sign bit: A single bit is assigned as a sign bit, and its value will always be zero. It makes the overall number positive. Doing so helps to ensure that any programming environment using these identifiers interprets them as positive integers.
+			• Time stamp: 41 bits are assigned for milliseconds. The Twitter Snowflake default epoch will be used. Its value is 1288834974657, which is equivalent to November 4, 2010, 01:42:54 UTC. We can initiate our own epoch when our system will be deployed, say January 1, 2022, at 12 midnight can be the start of our epoch from zero.
+				Time to range depletion = 2^41 / 365 years * 1000 ID/s ~= 69 years
+			• Worker number: The worker number is 10 bits. It gives us 2^10  = 1,024 worker IDs. The server creating the unique ID for its events will attach its ID.
+			• Sequence number: The sequence number is 12 bits. For every ID generated on the server, the sequence number is incremented by one. It gives us 2^12  = 4,096 unique sequence numbers. We’ll reset it to zero when it reaches 4,096. This number adds a layer to avoid duplication.
+				IDs during dead period(no request for generating an ID) gets wasted.
+				The physical clocks are unreliable. For such clocks, the error can be 17 seconds per day.
+				Network Time Protocol (NTP) - networking protocol for clock synchronization between computer systems over packet-switched, variable-latency data networks. It mitigates the effects of variable network latency. But risk of man-in-the-middle attacks.
+		• Using logical clocks
+			• Lamport clocks: each node has its counter, initated with zero.
+				Before executing an event, the numeric counter is incremented by one. The message sent from this event to another node has the counter value. When the other node receives the message, it first updates its logical clock by taking the maximum of its clock value. Then, it takes the one sent in a message and then executes the message.
+				can’t compare two clock values on any server to infer happened-before relationship.
+			• Vector clocks: maintain causal history
+				• Sign bit: A single bit is assigned as a sign bit, and its value will always be zero.
+				• Vector clock: This is 53 bits and the counters of each node.
+				• Worker number: This is 10 bits. It gives us 2^{10} = 1,024 worker IDs.
+				when the total number of participating nodes is enormous, vector clocks require a significant amount of storage.
+		• TrueTime API
+			Google’s TrueTime API in Spanner(Google’s Globally-Distributed Database, Google, Inc.) reports earliest and latest ones.
+			Google deploys a GPS receiver or atomic clock in each data center, and clocks are synchronized within about 7 ms.
+			ε - uncertainty of the interval
+			runs Marzullo's algorithm, which intersects time intervals to determine a time reference and gives an interval from earliest to latest
+			Spanner guarantees that two confidence intervals don’t overlap, then B definitely happened after A.
+			• Time stamp: The time stamp is 41 bits. We use earliest time as a time stamp.
+			• Uncertainty(ε): The uncertainty is four bits. Since the maximum uncertainty is claimed to be 6–10 ms, we’ll use four bits for storing it.
+			• Worker number: This is 10 bits. It gives us 2^10 = 1,024 worker IDs.
+			• Sequence number: This is 8 bits. For every ID generated on the server, the sequence number is incremented by one. It gives us 2^8 = 256 combinations. We’ll reset it to zero when it reaches 256.
+			If two intervals overlap, then we’re unsure in what order A and B occurred. It’s possible that they’re concurrent events, but a 100% guarantee can’t be given. Additionally, Spanner is expensive because it ensures high database consistency. The dollar cost of a Spanner-like system is also high due to its elaborate infrastructure needs and monitoring.
 
