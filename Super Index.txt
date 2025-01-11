@@ -323,3 +323,90 @@
 			"gossip-based protocol" also maintains an eventually consistent view of membership. When two nodes randomly choose one another as their peer, both nodes can efficiently synchronize their persisted membership histories.
 			We can make a few nodes play the role of seeds to avoid logical partitions(due to virtual gosip to another virtual node of same node).
 
+5• Content Delivery Network (CDN)
+	• Problems:
+		• High latency: many components like transmission, propagation, queuing, and nodal processing delays.
+		• Data-intensive applications: smaller Path message transmission unit, send lot of redundant data for multiple clients, applications that use streaming services are both data-intensive and dynamic in nature.
+		• Scarcity of data center resources: needs scaling, single point of failure.
+	group of geographically distributed proxy servers.
+	Eg: Akamai, StackPath, Cloudflare, Rackspace, Amazon CloudFront, and Google Cloud CDN.
+	• Requirements
+		• Functional Requirements:
+			• Retrieve
+			• Request
+			• Deliver
+			• Search
+			• Update
+			• Delete
+		• Non-functional requirements
+			• Performance
+			• Availability
+			• Scalability
+			• Reliability and security
+	• Design of a CDN:
+		• CDN components:
+			• Clients
+			• Routing system
+			• Scrubber servers
+			• Proxy servers
+			• Distribution system
+			• Origin servers
+			• Management system
+		• Workflow
+			1. The origin servers provide the URI namespace delegation of all objects cached in the CDN to the request routing system.
+			2. The origin server publishes the content to the distribution system responsible for data distribution across the active edge proxy servers.
+			3. The distribution system distributes the content among the proxy servers and provides feedback to the request routing system. This feedback is helpful in optimizing the selection of the nearest proxy server for a requesting client. This feedback contains information about which content is cached on which proxy server to route traffic to relevant proxy servers.
+			4. The client requests the routing system for a suitable proxy server from the request routing system.
+			5. The request routing system returns the IP address of an appropriate proxy server.
+			6. The client request routes through the scrubber servers for security reasons.
+			7. The scrubber server forwards good traffic to the edge proxy server.
+			8. The edge proxy server serves the client request and periodically forwards accounting information to the management system. The management system updates the origin servers and sends feedback to the routing system about the statistics and detail of the content. However, the request is routed to the origin servers if the content isn’t available in the proxy servers. It’s also possible to have a hierarchy of proxy servers if the content isn’t found in the edge proxy servers. For such cases, the request gets forwarded to the parent proxy servers.
+		• API Design
+			• Retrieve (proxy server to origin server)
+			• Deliver (origin server to proxy servers through the distribution system)
+			• Request (clients to proxy servers)
+			• Search (proxy server to peer proxy servers)
+			• Update (proxy server to peer proxy servers)
+				update the specified content in the peer proxy servers in the PoP. It does so when specified isolated scripts run on the CDN to provide image resizing, video resolution conversion, security, and many more services. This type of scripting is known as serverless scripting.
+			• Delete
+	• In-depth Investigation of CDN:
+		• Content caching strategies in CDN:
+			• Push CDN - static content - content automatically to proxy servers from origin server
+			• Pull CDN - dynamic content - pulls the unavailable data from origin servers when requested by a user, keeps it for TTL
+		• Dynamic content caching optimization: execution of scripts, compression techniques, ESI markup language to change only required making rest of web page cached.
+		• Multi-tier CDN architecture - might be used to handle long-tail content
+		• Find the nearest proxy server to fetch the data:
+			• Important factors that affect the proximity of the proxy server:
+				• Network distance between the user and the proxy server.
+					• length of the network path.
+					• capacity (bandwidth) limits along the network path.
+				• Requests load - load a proxy server handles at any point in time.
+			• DNS redirection - return another URI (instead of an IP) to the client
+				• it maps the clients to the appropriate network location.
+				• it distributes the load over the proxy servers in that location to balance the load among the proxy servers.
+			• Anycast: routing methodology in which all the edge servers located in multiple locations share the same single IP address.
+				It employs the Border Gateway Protocol (BGP, used by Internet edge routers to share routing and reachability information so that every node is aware of the status of their closest network neighbors.) to route clients based on the Internet’s natural network flow.
+			• Client multiplexing: involves sending a client a list of candidate servers. May result overloading.
+			• HTTP redirection: client requests orignin server which responds to redirect via a URL of the content.
+		• Content consistency
+			• Periodic polling - uses time-to-refresh (TTR) to adjust the time period
+			• Time-to-live (TTL)
+			• Leases - origin server agrees to notify the proxy server if there’s any change for a time period.
+		• Deployment
+			• Placement of CDN proxy servers
+				• On-premises represents a smaller data center that could be placed near major IXPs.
+				• Off-premises represents placing CDN proxy servers in ISP’s networks.
+				ProxyTeller - tool for content delivery under performance constraints) to decide where to place the proxy server and how many proxy servers are required to achieve high performance.
+		• CDN as a service
+			• Concerns of public CDN:
+				• content provider can’t do anything if the public CDN is down.
+				• If public CDN doesn’t have any proxy servers located in the region or country where some website traffic comes from.
+				• Possible that some domains or IP addresses of CDN providers are blocked or restricted in some countries because they might be delivering content that’s banned in those countries.
+		• Specialized CDN: consists of points of presence (PoPs) that only serve content for their own company
+			Eg: Netflix’s Open Connect Appliance (OCA)
+	• Evaluation of CDN's Design
+		• Performance
+		• Availability
+		• Scalability
+		• Reliability and security
+
