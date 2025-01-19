@@ -1598,8 +1598,37 @@ usage in Canopy - Facebook’s end-to-end performance tracing and analysis syste
 			runs Marzullo's algorithm, which intersects time intervals to determine a time reference and gives an interval from earliest to latest
 			Spanner guarantees that two confidence intervals don’t overlap, then B definitely happened after A.
 			• Time stamp: The time stamp is 41 bits. We use earliest time as a time stamp.
-			• Uncertainty(ε): The uncertainty is four bits. Since the maximum uncertainty is claimed to be 6–10 ms, we’ll use four bits for storing it.
+			• Uncertainty(ε): The uncertainty is four bits. Maximum uncertainty 6–10 ms.
 			• Worker number: This is 10 bits. It gives us 2^10 = 1,024 worker IDs.
 			• Sequence number: This is 8 bits. For every ID generated on the server, the sequence number is incremented by one. It gives us 2^8 = 256 combinations. We’ll reset it to zero when it reaches 256.
 			If two intervals overlap, then we’re unsure in what order A and B occurred. It’s possible that they’re concurrent events, but a 100% guarantee can’t be given. Additionally, Spanner is expensive because it ensures high database consistency. The dollar cost of a Spanner-like system is also high due to its elaborate infrastructure needs and monitoring.
+
+
+
+
+Section: 7• Distributed Monitoring:
+=====
+Introduction to Distributed Monitoring
+• Need for monitoring
+• Downtime cost
+	For example Oct 2021 Meta applications down for 9 hours, with loss ~$13 million/hour.
+	Dec 2021 Amazon had large surge of connection activity that overwhelmed the networking devices leading loss $66,240/minute.
+• Types of monitoring
+	• Server-side errors - 5xx - root cause is on server side
+	• Client-side errors - 4xx - root cause is on client side
+
+Prerequisites of a Monitoring System
+• Monitoring: metrics and alerting
+	• Metrics
+		need to collect values of metrics with minimal performance penalty
+		top command to view Linux processes - machine on time, users logged in, average load, CPU values, etc
+		• Populate the metrics
+			• pull model - monitoring system will pull the metrics values from the applications
+			• push model - metrics will be pushed to the monitoring system
+		• Persist the data
+			Time-series databases help maintain durability
+		• Application metrics
+			code instrumentation - embed logging or monitoring code in our applications
+	• Alerting - part of a monitoring system that responds to changes in metric values and takes action
+		There are two components to an alert definition: a metrics-based condition or threshold, and an action to take when the values fall outside of the permitted range.
 
